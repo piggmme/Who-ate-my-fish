@@ -1,0 +1,33 @@
+// footer
+@use './../utils/' as *;
+@use './../components/' as *;
+
+// 푸터
+.appFooter {
+  background-color: $darkbrown;
+  color: $white;
+  padding: rem(32px);
+  line-height: 1.5;
+
+  // 데스크탑에서 가운대에 배치
+  @include desktop {
+    text-align: center;
+  }
+
+  @at-root .address span {
+    // @at-root 안쓰면 .appFooter .address span
+    // @at-root 쓰면 .address span
+
+    // span이 모바일 환경에서만 ...
+    @include mobile {
+      display: block;
+    }
+  }
+
+  @at-root .copyright {
+    font-size: rem(16px);
+    display: block;
+    margin-top: rem(15px);
+    text-transform: uppercase;
+  }
+}

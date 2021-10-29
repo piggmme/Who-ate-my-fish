@@ -1,0 +1,83 @@
+@use 'sass:math';
+// _mixin.scss
+// 고해상도 배경이미지 처리 ---------------------------------------------------- /
+@mixin bgRetina($file, $type, $width, $height) {
+  background-image: url("./../assets/images/" + $file + "." + $type);
+  background-repeat: no-repeat;
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 144dpi) {
+    & {
+      background-image: url('./../assets/images/' + $file + '@2x.' + #{$type});
+      background-size: $width $height;
+    }
+  }
+}
+
+// Float 해제를 위한 clear 스타일 ---------------------------------------------------- /
+@mixin clearFix {
+  &::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+}
+
+// Auto Margin을 활용한 박스 가운데 정렬 ------------------------------------------------ /
+@mixin autoMargin($marginX: auto) {
+  margin-left: $marginX;
+  margin-right: $marginX;
+}
+
+// 요소 박스의 가로 크기를 뷰포트 기준 100vw로 설정 -------------------------------------------- /
+@mixin boxSizeFull($width: 100vw) {
+  // width: 100vw로 인해 body 영역에 가로 스크롤바가 나타난다.
+  // 이를 헤결하기 위해 루트 요소인 html에 overflow-x: hidden;을 추가해야 한다.
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  // 양 사이드로 펼칠 수 있음.
+  margin-left: -50vw;
+  @content;
+}
+
+// 요소 박스의 최대 크기 설정 ----------------------------------------------------------- /
+@mixin boxSizeMax($width: 1000px, $paddingX: 0) {
+  max-width: $width;
+  // paddingX를 양 옆에 패딩으로 줌.
+  padding-left: $paddingX;
+  padding-right: $paddingX;
+  // 가운데 정렬. mixin 재활용
+  @include autoMargin();
+  @content;
+}
+
+// 반응형 미디어 ----------------------------------------------------------- /
+@mixin responsive($width: max-width) {
+  // 기본값 max-width로 속성값이 들어감.
+  #{$width}: 100%;
+  height: auto;
+}
+
+// 텍스트 ellipsis ----------------------------------------------------------- /
+@mixin ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+// 반응형 iframe ----------------------------------------------------------- /
+@mixin resposiveIframe($width: 16, $height: 9) {
+  $ratio: ($height/$width) * 100%;
+  position: relative;
+  width: 100%;
+  height: 0 !important;
+  padding-top: $ratio;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
