@@ -1,0 +1,17 @@
+// form
+@use './../utils/' as *;
+
+.formInput {
+  &__input {
+    // form은 기본스타일에 문제가 있음.
+    appearance: none;
+    // block처럼 처리하고 싶음
+    display: block;
+    padding: rem(8px) rem(16px);
+    // 부모의 너비만큼
+    width: 100%;
+    border: 1px solid $gray;
+    background-color: $white;
+    font-size: rem(14px);
+  }
+}
