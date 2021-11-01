@@ -2,4 +2,22 @@
 @use './../components' as *;
 
 body {
+  width: 100vw;
+  height: 100vh;
+  background-color: $gray1;
+}
+
+.main {
+  @include boxSizeMax(1200px);
+  @include basicStyle;
+}
+.info {
+  &__time {
+    .timer {
+      font-family: 'Major Mono Display', monospace;
+    }
+  }
+  &__message-content {
+    font-family: 'Gaegu', cursive;
+  }
 }

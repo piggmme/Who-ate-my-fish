@@ -1,16 +1,11 @@
 @use 'sass:math';
+@use './unit' as *;
 
-// 고해상도 배경이미지 처리 ---------------------------------------------------- /
-@mixin bgRetina($file, $type, $width, $height) {
-  background-image: url('./../assets/images/' + $file + '.' + $type);
-  background-repeat: no-repeat;
-
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 144dpi) {
-    & {
-      background-image: url('./../assets/images/' + $file + '@2x.' + #{$type});
-      background-size: $width $height;
-    }
-  }
+// 기본 padding, border radius 스타일 ---------------------------------------------------- /
+@mixin basicStyle {
+  border-radius: rem(10px);
+  font-size: rem(16px);
+  padding: rem(10px);
 }
 
 // Float 해제를 위한 clear 스타일 ---------------------------------------------------- /
@@ -59,21 +54,4 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
-
-// 반응형 iframe ----------------------------------------------------------- /
-@mixin responsiveIframe($ratio-width, $ratio-height) {
-  position: relative;
-  width: 100%;
-  // padding 트릭 (iframe에는 높이가 안먹어서 padding-top으로 대신)
-  height: 0 !important;
-  padding-top: math.div($ratio-height, $ratio-width) * 100%;
-
-  iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
 }
