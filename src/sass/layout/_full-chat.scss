@@ -48,8 +48,8 @@
   .full-chat {
     &__user-name {
       position: absolute;
-      top: rem(10px);
-      left: rem(130px);
+      top: rem(8px);
+      left: 20%;
     }
     &__item-msg {
       margin-left: rem(16px);
@@ -65,8 +65,8 @@
   .full-chat {
     &__user-name {
       position: absolute;
-      top: rem(10px);
-      right: rem(130px);
+      top: rem(8px);
+      right: 20%;
     }
     &__item-msg {
       margin-right: rem(16px);
