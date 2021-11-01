@@ -1,6 +1,14 @@
 @use './../utils' as *;
 @use './../components' as *;
 
+// // 데스크탑
+// @include respond-above(768px) {
+// }
+
+// // 모바일
+// @include respond-below(768px) {
+// }
+
 .full-chat {
   &__container {
     @include basicStyle;
@@ -14,6 +22,10 @@
     width: 100%;
     position: relative;
     margin: rem(16px) 0;
+
+    &-img {
+      width: 17%;
+    }
   }
 
   &__user-name {
