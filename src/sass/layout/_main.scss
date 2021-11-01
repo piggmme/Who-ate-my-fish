@@ -2,6 +2,19 @@
 @use './../components' as *;
 @use './full-chat' as *;
 
+.header {
+  @include flexbox($justify-content: center);
+  .fish-img {
+    align-self: center;
+    width: rem(70px);
+  }
+  .title {
+    padding: 1%;
+    font-size: rem(40px);
+    font-family: 'Gaegu', cursive;
+  }
+}
+
 .hidden {
   display: none;
 }
@@ -31,14 +44,14 @@ body {
   width: 49%;
 }
 
-// 채팅 입력창
+// 채팅 입력창 ---------------------------------------/
 .chat-form {
   width: 100%;
   margin-top: 2%;
   @include flexbox($justify-content: space-between);
   input {
     width: 89%;
-    padding: rem(10px);
+    padding: rem(16px);
     border: 0;
     border: 1px solid $gray2;
     border-radius: rem(10px);
@@ -46,7 +59,7 @@ body {
   }
   button {
     width: 10%;
-    border-radius: rem(5px);
+    border-radius: rem(10px);
     border: 0;
     color: $black;
     background-color: $white;

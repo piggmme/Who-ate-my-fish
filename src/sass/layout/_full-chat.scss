@@ -7,13 +7,13 @@
     @include boxShadow;
     width: 49%;
     background-color: $white;
-    height: 80vh;
+    height: 75vh;
     overflow: scroll;
   }
   &__item {
     width: 100%;
     position: relative;
-    margin-bottom: rem(16px);
+    margin: rem(16px) 0;
   }
 
   &__user-name {
@@ -27,6 +27,7 @@
     width: 80%;
     padding: rem(16px);
     border-radius: rem(10px);
+    @include boxShadow;
   }
 }
 
