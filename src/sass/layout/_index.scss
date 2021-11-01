@@ -1,0 +1,9 @@
+// 만든 레이아웃 가져다가 @forward 붙여서 사용!
+// 페이지 만들때 다음과 같이 가져와서 사용해야함
+// @use './../utils' as *;
+// @use './../components' as *;
+
+// @forward './layout';
+// @forward './navigation';
+
+@forward './main';
