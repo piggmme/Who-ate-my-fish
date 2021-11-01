@@ -1,0 +1,9 @@
+@use './../utils' as *;
+@use './../components' as *;
+
+.full-chat {
+  &__container {
+    background-color: red;
+    width: 49%;
+  }
+}

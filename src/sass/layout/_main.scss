@@ -1,5 +1,10 @@
 @use './../utils' as *;
 @use './../components' as *;
+@use './full-chat' as *;
+
+.hidden {
+  display: none;
+}
 
 body {
   width: 100vw;
@@ -10,6 +15,8 @@ body {
 .main {
   @include boxSizeMax(1200px);
   @include basicStyle;
+  background-color: pink;
+  @include flexbox($justify-content: space-between, $flex-wrap: wrap);
 }
 .info {
   &__time {
@@ -19,5 +26,18 @@ body {
   }
   &__message-content {
     font-family: 'Gaegu', cursive;
+  }
+}
+.info__container {
+  width: 49%;
+}
+.chat-form {
+  width: 100%;
+  margin-top: 2%;
+  input {
+    width: 80%;
+  }
+  button {
+    width: 10%;
   }
 }
