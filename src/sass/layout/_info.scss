@@ -97,12 +97,54 @@
   }
 
   &__users {
+    position: relative;
+    padding-top: 30px;
+
     fieldset {
       background-color: $white;
       @include basicStyle();
+      // display: flex;
+      // flex-wrap: wrap;
+
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      padding: 20px 10px;
+    }
+
+    legend {
+      position: absolute;
+      top: 0;
+      left: 10px;
+    }
+
+    label {
+      display: flex;
+      flex-flow: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100px;
+    }
+
+    input {
+      @include a11yHidden();
     }
     img {
-      width: 20%;
+      width: 60%;
+    }
+
+    &-name {
+      display: block;
+    }
+
+    button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      border: 1px solid red;
+      background-color: red;
+      color: white;
+      border-radius: 5px;
     }
   }
 }
