@@ -3,7 +3,22 @@
 
 .full-chat {
   &__container {
-    background-color: red;
+    @include basicStyle;
+    @include boxShadow;
     width: 49%;
+    background-color: $white;
+  }
+  &__item {
+    @include flexbox;
+    width: 100%;
+    position: relative;
+  }
+  &__user-name {
+    position: absolute;
+    top: 0;
+  }
+  &__item-msg {
+    background-color: $mint;
+    width: 80%;
   }
 }
