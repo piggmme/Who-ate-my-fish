@@ -12,31 +12,56 @@
   }
 
   &__header {
-    display: grid;
-    grid-template-areas: 'icon timer profile';
-    grid-template-columns: 2fr 6fr 2fr;
+    @include flexbox(row, nowrap);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    padding: 10px;
+    margin-top: -1%;
+  }
 
-    img {
-      width: 100%;
-      grid-area: icon;
-    }
+  &__fish-img {
+    width: 25%;
+    height: 15%;
+    max-height: 70px;
+  }
+  &__day-img {
+    width: 15%;
+    height: 10%;
+    max-height: 100px;
+  }
+  &__night-img {
+    width: 15%;
+    height: 20%;
+    max-height: 100px;
   }
   &__time {
-    @include flexbox($direction: column, $flex-wrap: wrap, $justify-content: space-between);
     width: 50%;
-    height: span {
+
+    span {
       display: block;
+      margin-left: 20px;
+      font-size: rem(20px);
     }
     .timer {
+      margin-left: 10px;
       font-size: rem(40px);
     }
   }
   &__profile {
-    &__profile-img {
+    width: 30%;
+    position: relative;
+
+    img {
+      @include autoMargin();
+      width: 60%;
+
       display: block;
     }
-    &__profile-name {
+    &-name {
       display: block;
+      text-align: center;
     }
   }
   &__game-status {
