@@ -8,7 +8,7 @@
     width: 49%;
     background-color: $sky-blue;
     height: 75vh;
-    overflow: scroll;
+    // overflow: scroll;
   }
 
   &__header {
@@ -18,7 +18,7 @@
     align-items: flex-end;
     width: 100%;
     padding: 10px;
-    margin-top: -1%;
+    // margin-top: -1%;
   }
 
   &__fish-img {
@@ -66,7 +66,7 @@
   }
   &__game-status {
     display: block;
-    padding: rem(20px) 0;
+    padding: rem(20px) 0 rem(10px);
     font-size: rem(20px);
   }
 
@@ -103,13 +103,11 @@
     fieldset {
       background-color: $white;
       @include basicStyle();
-      // display: flex;
-      // flex-wrap: wrap;
 
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      padding: 20px 10px;
+      padding: 10px 10px;
     }
 
     legend {
@@ -130,7 +128,7 @@
       @include a11yHidden();
     }
     img {
-      width: 60%;
+      width: 50%;
     }
 
     &-name {
