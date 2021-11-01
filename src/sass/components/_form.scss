@@ -1,0 +1,13 @@
+@use './../utils' as *;
+
+.formInput {
+  &__input {
+    appearance: none;
+    display: block;
+    padding: rem(8px) rem(16px);
+    width: 100%;
+    border: 1px solid $gray;
+    background: $white;
+    font-size: rem(14px);
+  }
+}
