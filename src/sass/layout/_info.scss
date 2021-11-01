@@ -1,0 +1,65 @@
+@use './../utils' as *;
+@use './../components' as *;
+
+.info {
+  &__container {
+  }
+
+  &__header {
+    display: grid;
+    grid-template-areas: 'icon timer profile';
+    grid-template-columns: 2fr 6fr 2fr;
+
+    img {
+      width: 100%;
+      grid-area: icon;
+    }
+  }
+  &__time {
+    @include flexbox($direction: column, $flex-wrap: wrap, $justify-content: space-between);
+    width: 50%;
+    height: span {
+      display: block;
+    }
+    .timer {
+      font-size: rem(40px);
+    }
+  }
+  &__profile {
+    &__profile-img {
+      display: block;
+    }
+    &__profile-name {
+      display: block;
+    }
+  }
+  &__game-status {
+    margin: rem(10px) auto;
+  }
+
+  &__message {
+    @include flexbox($justify-content: space-between);
+    &-title {
+      font-size: rem(20px);
+    }
+    &-content {
+      display: block;
+      background-color: $white;
+      width: 50%;
+      height: rem(50px);
+      justify-content: center;
+      text-align: center;
+      @include basicStyle();
+    }
+  }
+
+  &__users {
+    fieldset {
+      background-color: $white;
+      @include basicStyle();
+    }
+    img {
+      width: 20%;
+    }
+  }
+}
