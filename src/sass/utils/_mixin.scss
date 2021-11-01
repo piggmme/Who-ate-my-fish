@@ -1,0 +1,62 @@
+@use 'sass:math';
+@use './unit' as *;
+
+// 기본 padding, border radius 스타일 ---------------------------------------------------- /
+@mixin basicStyle($padding: 2%) {
+  border-radius: rem(10px);
+  font-size: rem(16px);
+  padding: 0 $padding;
+}
+
+// 그림자 설정
+@mixin boxShadow {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+// Float 해제를 위한 clear 스타일 ---------------------------------------------------- /
+@mixin clearFix {
+  &::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+}
+
+// Auto Margin을 활용한 박스 가운데 정렬 ------------------------------------------------ /
+@mixin autoMargin($marginX: auto) {
+  margin-left: $marginX;
+  margin-right: $marginX;
+}
+
+// 요소 박스의 가로 크기를 뷰포트 기준 100vw로 설정 -------------------------------------------- /
+@mixin boxSizeFull($width: 100vw) {
+  // width: 100vw로 인해 body 영역에 가로 스크롤바가 나타난다.
+  // 이를 헤결하기 위해 루트 요소인 html에 overflow-x: hidden;을 추가해야 한다.
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  @content;
+}
+
+// 요소 박스의 최대 크기 설정 ----------------------------------------------------------- /
+@mixin boxSizeMax($width: 1000px, $paddingX: 0) {
+  max-width: $width;
+  padding-left: $paddingX;
+  padding-right: $paddingX;
+  @include autoMargin();
+  @content;
+}
+
+// 반응형 미디어 ----------------------------------------------------------- /
+@mixin responsive($width: max-width) {
+  #{$width}: 100%;
+  height: auto;
+}
+
+// 텍스트 ellipsis ----------------------------------------------------------- /
+@mixin ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

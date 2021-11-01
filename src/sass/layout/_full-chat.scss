@@ -1,0 +1,77 @@
+@use './../utils' as *;
+@use './../components' as *;
+
+// // 데스크탑
+// @include respond-above(768px) {
+// }
+
+// // 모바일
+// @include respond-below(768px) {
+// }
+
+.full-chat {
+  &__container {
+    @include basicStyle;
+    @include boxShadow;
+    width: 49%;
+    background-color: $white;
+    height: 75vh;
+    overflow: scroll;
+  }
+  &__item {
+    width: 100%;
+    position: relative;
+    margin: rem(16px) 0;
+
+    &-img {
+      width: 17%;
+    }
+  }
+
+  &__user-name {
+    position: absolute;
+    top: rem(10px);
+  }
+  &__item-msg {
+    align-self: center;
+    background-color: $mint;
+    margin-top: rem(30px);
+    width: 80%;
+    padding: rem(16px);
+    border-radius: rem(10px);
+    @include boxShadow;
+  }
+}
+
+.other {
+  @include flexbox($align-items: flex-start);
+  .full-chat {
+    &__user-name {
+      position: absolute;
+      top: rem(8px);
+      left: 20%;
+    }
+    &__item-msg {
+      margin-left: rem(16px);
+      background-color: $mint;
+      border-top-left-radius: 0;
+    }
+  }
+}
+
+.me {
+  @include flexbox($direction: row-reverse, $align-items: flex-start);
+  position: relative;
+  .full-chat {
+    &__user-name {
+      position: absolute;
+      top: rem(8px);
+      right: 20%;
+    }
+    &__item-msg {
+      margin-right: rem(16px);
+      background-color: $light-blue;
+      border-top-right-radius: 0;
+    }
+  }
+}
