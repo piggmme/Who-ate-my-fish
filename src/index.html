@@ -6,5 +6,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Who Ate My Fish</title>
   </head>
-  <body></body>
+  <body>
+    <header class="header">
+      <h1 class="title">Who ate my fish</h1>
+    </header>
+
+    <main class="main">
+      <div class="full-chat__container">
+        <ul class="full-chat__list">
+          <li class="full-chat__item">
+            <img src="" alt="" class="full-chat__item-img" />
+            <span class="full-chat__user-name">오드아이</span>
+            <div class="full-chat__item-msg">게임 재밌겠다</div>
+          </li>
+          <!-- 채팅창 메세지를 동적 추가
+          <li class="full-chat__item">
+            <img src="" alt="" class="full-chat__item-img" />
+            <span class="full-chat__user-name">오드아이</span>
+            <div class="full-chat__item-msg">게임 재밌겠다</div>
+          </li> -->
+        </ul>
+      </div>
+
+      <div class="info__container">
+        <div class="info__header">
+          <img src="" alt="낮" class="info__day-img" />
+          <img src="" alt="밤" class="info__night-img hidden" />
+        </div>
+        <div class="info__time">
+          <span>남은 시간</span>
+          <span class="timer">00:00</span>
+        </div>
+        <div class="info__profile">
+          <img src="" alt="" class="info__profile-img" />
+          <span class="info__profile-name">삼색이</span>
+        </div>
+        <span class="info__game-status">곧 게임이 시작됩니다.</span>
+        <div class="info__message">
+          <span class="info__message-title">오늘의 암구호</span>
+          <span class="info__message-content">햄버거</span>
+        </div>
+        <form class="info__users">
+          <fieldset>
+            <legend>인원 4 / 5</legend>
+            <label>
+              <input type="radio" id="user1" name="user1" />
+              <img src="" alt="플레이어 캐릭터" />
+              <span class="user-name">네로</span>
+            </label>
+            <label>
+              <input type="radio" id="user1" name="user1" />
+              <img src="" alt="플레이어 캐릭터" />
+              <span class="user-name">네로</span>
+            </label>
+            <label>
+              <input type="radio" id="user1" name="user1" />
+              <img src="" alt="플레이어 캐릭터" />
+              <span class="user-name">네로</span>
+            </label>
+            <label>
+              <input type="radio" id="user1" name="user1" />
+              <img src="" alt="플레이어 캐릭터" />
+              <span class="user-name">네로</span>
+            </label>
+            <label>
+              <input type="radio" id="user1" name="user1" />
+              <img src="" alt="플레이어 캐릭터" />
+              <span class="user-name">네로</span>
+            </label>
+          </fieldset>
+          <button type="submit">선택 완료</button>
+        </form>
+      </div>
+
+      <form action="" class="chat-form">
+        <input type="text" />
+        <button type="submit">send</button>
+      </form>
+
+      <!-- class = "new exit" -->
+      <button class="chat-toggle-button hidden">
+        <img src="" alt="채팅창 보기" />
+      </button>
+    </main>
+  </body>
 </html>
