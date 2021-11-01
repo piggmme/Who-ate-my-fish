@@ -15,7 +15,6 @@ body {
 .main {
   @include boxSizeMax(1200px);
   @include basicStyle;
-  background-color: pink;
   @include flexbox($justify-content: space-between, $flex-wrap: wrap);
 }
 .info {
@@ -31,13 +30,30 @@ body {
 .info__container {
   width: 49%;
 }
+
+// 채팅 입력창
 .chat-form {
   width: 100%;
   margin-top: 2%;
+  @include flexbox($justify-content: space-between);
   input {
-    width: 80%;
+    width: 89%;
+    padding: rem(10px);
+    border: 0;
+    border: 1px solid $gray2;
+    border-radius: rem(10px);
+    @include boxShadow;
   }
   button {
     width: 10%;
+    border-radius: rem(5px);
+    border: 0;
+    color: $black;
+    background-color: $white;
+    @include boxShadow;
+  }
+  .isActiveBtn {
+    color: $white;
+    background-color: $blue;
   }
 }

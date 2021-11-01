@@ -7,18 +7,58 @@
     @include boxShadow;
     width: 49%;
     background-color: $white;
+    height: 80vh;
+    overflow: scroll;
   }
   &__item {
-    @include flexbox;
     width: 100%;
     position: relative;
+    margin-bottom: rem(16px);
   }
+
   &__user-name {
     position: absolute;
-    top: 0;
+    top: rem(10px);
   }
   &__item-msg {
+    align-self: center;
     background-color: $mint;
+    margin-top: rem(30px);
     width: 80%;
+    padding: rem(16px);
+    border-radius: rem(10px);
+  }
+}
+
+.other {
+  @include flexbox($align-items: flex-start);
+  .full-chat {
+    &__user-name {
+      position: absolute;
+      top: rem(10px);
+      left: rem(130px);
+    }
+    &__item-msg {
+      margin-left: rem(16px);
+      background-color: $mint;
+      border-top-left-radius: 0;
+    }
+  }
+}
+
+.me {
+  @include flexbox($direction: row-reverse, $align-items: flex-start);
+  position: relative;
+  .full-chat {
+    &__user-name {
+      position: absolute;
+      top: rem(10px);
+      right: rem(130px);
+    }
+    &__item-msg {
+      margin-right: rem(16px);
+      background-color: $light-blue;
+      border-top-right-radius: 0;
+    }
   }
 }
