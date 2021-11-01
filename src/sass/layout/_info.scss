@@ -3,10 +3,12 @@
 
 .info {
   &__container {
-    border-radius: 3%;
-    padding: 10px;
-    overflow: hidden;
-    background-color: pink;
+    @include basicStyle;
+    @include boxShadow;
+    width: 49%;
+    background-color: $sky-blue;
+    height: 75vh;
+    overflow: scroll;
   }
 
   &__header {
@@ -17,8 +19,6 @@
     width: 100%;
     padding: 10px;
     margin-top: -1%;
-
-    // background-color: lime;
   }
 
   &__fish-img {
@@ -65,22 +65,34 @@
     }
   }
   &__game-status {
-    margin: rem(10px) auto;
+    display: block;
+    padding: rem(20px) 0;
+    font-size: rem(20px);
   }
 
   &__message {
-    @include flexbox($justify-content: space-between);
+    @include flexbox($justify-content: center);
+
     &-title {
+      display: block;
       font-size: rem(20px);
+      width: 30%;
+      padding: rem(20px);
+      text-align: center;
+      line-height: rem(70px);
     }
     &-content {
+      @include boxShadow;
       display: block;
+      align-self: center;
       background-color: $white;
-      width: 50%;
-      height: rem(50px);
-      justify-content: center;
+      border-radius: rem(10px);
+      width: 70%;
+      height: rem(70px);
+      margin: rem(20px) 0;
+      font-size: rem(30px);
       text-align: center;
-      @include basicStyle();
+      line-height: rem(70px);
     }
   }
 
