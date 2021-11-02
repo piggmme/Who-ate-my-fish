@@ -116,8 +116,6 @@ io.on('connection', socket => {
 
         io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '???');
       }, 5000);
-
-      console.log('hi');
     }
 
     io.to(socket.id).emit('user update', catInfo);
@@ -129,7 +127,6 @@ io.on('connection', socket => {
 
     socket.on('disconnect', () => {
       user.delete(socket.id, catInfo[0]);
-      console.log(user.currentUser());
       io.emit('user disconnect', user.currentUser());
     });
     // 연결이 끊어진 경우
