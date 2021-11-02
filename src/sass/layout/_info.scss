@@ -75,18 +75,24 @@
 
   &__message {
     @include flexbox($justify-content: center);
+    gap: rem(10px);
 
     &-title {
       display: block;
       font-size: rem(20px);
-      width: 30%;
+      width: 20%;
       padding: rem(20px);
       text-align: center;
+<<<<<<< Updated upstream
       line-height: rem(70px);
       text-overflow: ellipsis;
       word-break: break-all;
       overflow: hidden;
       white-space: nowrap;
+=======
+      line-height: rem(35px);
+      word-break: keep-all;
+>>>>>>> Stashed changes
     }
     &-content {
       @include boxShadow;
@@ -94,7 +100,7 @@
       align-self: center;
       background-color: $white;
       border-radius: rem(10px);
-      width: 70%;
+      width: 80%;
       height: rem(70px);
       margin: rem(20px) 0;
       font-size: rem(30px);
