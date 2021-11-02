@@ -102,7 +102,7 @@ io.on('connection', socket => {
   }
 
   // console.log(catInfo);
-
+  // 5명 인원수 이하
   if (catInfo) {
     if (user.currentUser().length === 5) {
       gameInfo.setCitizens(user.currentUser());
@@ -129,8 +129,8 @@ io.on('connection', socket => {
       user.delete(socket.id, catInfo[0]);
       io.emit('user disconnect', user.currentUser());
     });
-    // 연결이 끊어진 경우
   } else {
+    // 5명 인원수 이상
     console.log('waiting');
   }
 

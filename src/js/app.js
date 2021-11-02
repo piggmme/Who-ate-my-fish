@@ -1,9 +1,12 @@
 // import axios from 'axios';
 import io from 'socket.io-client';
+import chatInit from './chat';
 
 const socket = io('http://localhost:3000');
 
 // -----------------채팅 영역----------------------- //
+
+chatInit();
 
 document.querySelector('.chat-form').addEventListener('submit', e => {
   e.preventDefault();

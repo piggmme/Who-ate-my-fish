@@ -2,8 +2,35 @@
 @use './../components' as *;
 @use './full-chat' as *;
 
+.hidden {
+  display: none !important;
+}
+
+// 데스크탑
+@include respond-above(md) {
+  .main {
+    @include boxSizeMax(1200px);
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  html {
+    font-size: rem(14px);
+  }
+  .main {
+    @include boxSizeMax(600px);
+    width: 100%;
+  }
+}
+
+body {
+  @include flexbox($justify-content: center, $align-items: center, $direction: column);
+}
+
 .header {
   @include flexbox($justify-content: center);
+  width: 100%;
   .fish-img {
     align-self: center;
     width: rem(70px);
@@ -26,9 +53,9 @@ body {
 }
 
 .main {
-  @include boxSizeMax(1200px);
   @include basicStyle;
   @include flexbox($justify-content: space-between, $flex-wrap: wrap);
+  position: relative;
 }
 .info {
   &__time {
@@ -68,6 +95,20 @@ body {
   .isActiveBtn {
     color: $white;
     background-color: $blue;
+  }
+}
+
+// 채팅 버튼 ---------------------------------------/
+.chat-toggle-button {
+  position: absolute;
+  bottom: 13%;
+  right: 3%;
+  width: 13%;
+  border: 0;
+  background-color: transparent;
+
+  img {
+    width: 100%;
   }
 }
 
