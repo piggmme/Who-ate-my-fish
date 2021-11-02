@@ -1,6 +1,10 @@
 // import axios from 'axios';
 import io from 'socket.io-client';
 
+import chatInit from './chat.js';
+
+chatInit();
+
 const socket = io('http://localhost:3000');
 
 // http통신 예제
