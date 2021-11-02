@@ -1,4 +1,4 @@
-import axios from 'axios';
+// import axios from 'axios';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
@@ -11,4 +11,12 @@ const socket = io('http://localhost:3000');
 
 // fetchTodo();
 
-axios.get('http://localhost:3000').then(resolve => console.log(resolve));
+socket.on('user update', array => {
+  console.log(array);
+});
+
+socket.on('userInfo', alluser => {
+  console.log(alluser);
+});
+
+// axios.get('http://localhost:3000').then(resolve => console.log(resolve));
