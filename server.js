@@ -12,6 +12,8 @@ const io = new Server(server, {
   },
 });
 
+const getRandom = () => Math.floor(Math.random() * 5); // 0 ~ 4
+
 // 사용자는 5명으로 제한됨.
 const user = (() => {
   let users = [];
@@ -26,7 +28,7 @@ const user = (() => {
   ];
 
   const randomCat = () => {
-    let idx = Math.floor(Math.random() * 5 - 0.1); // 0 ~ 4
+    let idx = Math.floor(Math.random() * 5); // 0 ~ 4
     while (ch[idx] !== 0) {
       idx = Math.floor(Math.random() * 5);
     }
@@ -40,11 +42,8 @@ const user = (() => {
         waitingUsers.push(id);
         return false;
       }
-      console.log(users);
       const catInfo = randomCat();
-      console.log(catInfo);
       users.push([...catInfo, id]);
-      console.log('users: ' + users);
       return catInfo;
     },
     currentUser() {
@@ -61,9 +60,31 @@ const user = (() => {
   };
 })();
 
+const gameInfo = (() => {
+  let citizens = [];
+  let mafia = [];
+
+  return {
+    getCitizens() {
+      return citizens;
+    },
+    getMafia() {
+      return mafia;
+    },
+    setCitizens(citizensArray) {
+      citizens = [...citizensArray];
+    },
+    setMafia(idx) {
+      mafia = citizens[idx];
+      citizens.splice(idx, 1);
+    },
+  };
+})();
+
 // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
   let catInfo = '';
+<<<<<<< HEAD
 
   if (user.currentUser().length < 5) {
     catInfo = user.add(socket.id);
@@ -71,10 +92,23 @@ io.on('connection', socket => {
     io.emit('timer setting', 'beginning');
     user.setWaitingUsers(socket.id);
   }
+=======
+  if (user.currentUser().length < 5) {
+    catInfo = user.add(socket.id);
+  } else {
+    user.setWaitingUsers(socket.id);
+  }
+
+  // console.log(catInfo);
+>>>>>>> 5df4217b7331b35e4429479deb8e841d5bbf106e
 
   if (catInfo) {
+    if (user.currentUser().length === 5) {
+      gameInfo.setCitizens(user.currentUser());
+      gameInfo.setMafia(getRandom());
+    }
+
     io.to(socket.id).emit('user update', catInfo);
-    io.emit('currentUsers', user.currentUser());
 
     // chat message이벤트가 발생한 경우
     socket.on('chat message', msg => {
@@ -90,12 +124,9 @@ io.on('connection', socket => {
   } else {
     console.log('waiting');
   }
-});
 
-// 특정 소켓(socket)을 제외한 모든 사람들에게 전달하고 싶을 경우
-// io.on('connection', socket => {
-//   socket.broadcast.emit('hi');
-// });
+  io.emit('currentUsers', user.currentUser());
+});
 
 server.listen(3000, () => {
   console.log('listening on *:3000');
