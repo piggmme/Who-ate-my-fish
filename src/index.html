@@ -51,11 +51,11 @@
         </ul>
       </div>
 
-      <div class="info__container">
+      <div class="info__container pending">
         <div class="info__header">
-          <img src="./images/fish.png" alt="대기" class="info__fish-img" />
-          <img src="./images/sun.png" alt="낮" class="info__day-img" hidden />
-          <img src="./images/moon.png" alt="밤" class="info__night-img" hidden />
+          <img src="./images/fish.png" alt="대기" class="info__img-pending info__img-beginning" />
+          <img src="./images/sun.png" alt="낮" class="info__img-day" />
+          <img src="./images/moon.png" alt="밤" class="info__img-night" />
           <div class="info__time">
             <span>남은 시간</span>
             <span class="timer">00:00</span>
@@ -67,7 +67,7 @@
         </div>
         <span class="info__game-status">곧 게임이 시작됩니다.</span>
         <div class="info__message">
-          <span class="info__message-title">오늘의 암구호</span>
+          <span class="info__message-title">오늘의<br />암구호</span>
           <span class="info__message-content">햄버거</span>
         </div>
         <form class="info__users">
@@ -113,6 +113,14 @@
         <img src="./images/message.png" alt="채팅창 보기" />
       </button>
     </main>
-    <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+    <div class="modal">
+      <div role="dialog" aria-modal="true" aria-labelledby="dialog1_label" class="modal-window">
+        <h2 id="dialog1_label" class="dialog_label a11yHidden">게임 오버 모달창</h2>
+        <h3 class="modal-title">시민이 이겼습니다!</h3>
+        <button class="modal-retry">다시하기</button>
+        <button class="modal-close">x</button>
+        <img src="./images/cats/civilwin.png" alt="철창에 갇힌 고양이" class="modal-img" />
+      </div>
+    </div>
   </body>
 </html>
