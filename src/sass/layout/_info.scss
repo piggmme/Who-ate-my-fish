@@ -145,8 +145,19 @@
     input {
       @include a11yHidden();
     }
+
+    input:checked ~ img {
+      border: 3px solid red;
+      border-radius: 50%;
+    }
+
+    input ~ img {
+      border: 0;
+    }
+
     img {
       width: 50%;
+      border: 0;
     }
 
     &-name {

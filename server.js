@@ -12,21 +12,23 @@ const io = new Server(server, {
   },
 });
 
+const getRandom = () => Math.floor(Math.random() * 5); // 0 ~ 4
+
 // 사용자는 5명으로 제한됨.
 const user = (() => {
   let users = [];
   const waitingUsers = [];
   const ch = Array(5).fill(0);
   const catsInfo = [
-    ['오드아이', './images/cats/cat1.png'],
-    ['삼색이', './images/cats/cat2.png'],
-    ['샴', './images/cats/cat3.png'],
-    ['고등어', './images/cats/cat4.png'],
-    ['치즈', './images/cats/cat5.png'],
+    ['오드아이', './images/cats/cat2.png'],
+    ['삼색이', './images/cats/cat3.png'],
+    ['샴', './images/cats/cat5.png'],
+    ['고등어', './images/cats/cat1.png'],
+    ['치즈', './images/cats/cat4.png'],
   ];
 
   const randomCat = () => {
-    let idx = Math.floor(Math.random() * 5 - 0.1); // 0 ~ 4
+    let idx = Math.floor(Math.random() * 5); // 0 ~ 4
     while (ch[idx] !== 0) {
       idx = Math.floor(Math.random() * 5);
     }
@@ -40,15 +42,15 @@ const user = (() => {
         waitingUsers.push(id);
         return false;
       }
-      console.log(users);
       const catInfo = randomCat();
-      console.log(catInfo);
       users.push([...catInfo, id]);
-      console.log('users: ' + users);
       return catInfo;
     },
     currentUser() {
       return users;
+    },
+    setWaitingUsers(id) {
+      waitingUsers.push(id);
     },
     delete(id, catName) {
       const idx = catsInfo.map(el => el[0]).indexOf(catName);
@@ -58,14 +60,65 @@ const user = (() => {
   };
 })();
 
+const gameInfo = (() => {
+  let citizens = [];
+  let mafia = [];
+  const secretCode = '햄버거버거';
+
+  return {
+    getCitizens() {
+      return citizens;
+    },
+    getMafia() {
+      return mafia;
+    },
+    getSecretCode() {
+      return secretCode;
+    },
+    setCitizens(citizensArray) {
+      citizens = [...citizensArray];
+    },
+    setMafia(idx) {
+      mafia = citizens[idx];
+      citizens.splice(idx, 1);
+    },
+  };
+})();
+
+const GAMESTAGE = {
+  PENDING: 'pending',
+  BEGINNING: 'beginning',
+  DAY: 'day',
+  NIGHT: 'night',
+};
+
 // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
-  const catInfo = user.add(socket.id);
+  let catInfo = '';
+  if (user.currentUser().length < 5) {
+    catInfo = user.add(socket.id);
+  } else {
+    user.setWaitingUsers(socket.id);
+  }
+
   // console.log(catInfo);
 
   if (catInfo) {
+    if (user.currentUser().length === 5) {
+      gameInfo.setCitizens(user.currentUser());
+      gameInfo.setMafia(getRandom());
+      io.emit('change gameState', GAMESTAGE.BEGINNING);
+
+      setTimeout(() => {
+        gameInfo.getCitizens().forEach(civil => {
+          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode());
+        });
+
+        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '???');
+      }, 5000);
+    }
+
     io.to(socket.id).emit('user update', catInfo);
-    io.emit('currentUsers', user.currentUser());
 
     // chat message이벤트가 발생한 경우
     socket.on('chat message', msg => {
@@ -74,19 +127,20 @@ io.on('connection', socket => {
 
     socket.on('disconnect', () => {
       user.delete(socket.id, catInfo[0]);
-      console.log(user.currentUser());
       io.emit('user disconnect', user.currentUser());
     });
     // 연결이 끊어진 경우
   } else {
     console.log('waiting');
   }
-});
 
-// 특정 소켓(socket)을 제외한 모든 사람들에게 전달하고 싶을 경우
-// io.on('connection', socket => {
-//   socket.broadcast.emit('hi');
-// });
+  io.emit('currentUsers', user.currentUser());
+
+  // 각 클라이언트가 선택한 고양이 이름 받기.
+  socket.on('vote', name => {
+    console.log(name);
+  });
+});
 
 server.listen(3000, () => {
   console.log('listening on *:3000');
