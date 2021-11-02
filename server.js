@@ -38,10 +38,6 @@ const user = (() => {
 
   return {
     add(id) {
-      // if (users.length === 5) {
-      //   waitingUsers.push(id);
-      //   return false;
-      // }
       const catInfo = randomCat();
       users.push([...catInfo, id]);
       return catInfo;
@@ -49,9 +45,6 @@ const user = (() => {
     currentUser() {
       return users;
     },
-    // setWaitingUsers(id) {
-    //   waitingUsers.push(id);
-    // },
     delete(id, catName) {
       const idx = catsInfo.map(el => el[0]).indexOf(catName);
       ch[idx] = 0;
@@ -63,6 +56,7 @@ const user = (() => {
 const gameInfo = (() => {
   let citizens = [];
   let mafia = [];
+  const jailCat = [];
   const secretCode = '햄버거버거';
 
   return {
@@ -71,6 +65,9 @@ const gameInfo = (() => {
     },
     getMafia() {
       return mafia;
+    },
+    getJailCat() {
+      return jailCat;
     },
     getSecretCode() {
       return secretCode;
@@ -111,10 +108,10 @@ io.on('connection', socket => {
 
       setTimeout(() => {
         gameInfo.getCitizens().forEach(civil => {
-          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode());
+          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode(), true);
         });
 
-        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '???');
+        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '', false);
       }, 6000);
     }
 
@@ -131,7 +128,7 @@ io.on('connection', socket => {
     });
     // 연결이 끊어진 경우
   } else {
-    console.log('waiting');
+    console.log('user disconnected');
   }
 
   socket.on('force disconnected', () => {
@@ -140,10 +137,46 @@ io.on('connection', socket => {
 
   io.emit('currentUsers', user.currentUser());
 
+  // let voteResult = [];
+  // let voteCat = '';
+  // let maxVal = 0;
+  // let flag = true;
+
   // 각 클라이언트가 선택한 고양이 이름 받기.
-  socket.on('vote', name => {
-    console.log(name);
-  });
+  // socket.on('dayVote', name => {
+  //   voteResult.push(name);
+  //   if (voteResult.length === user.currentUser().length - gameInfo.getJailCat().length) {
+  //     const newMap = new Map();
+
+  //     voteResult.forEach(el => newMap.set(el, newMap.get(el) + 1 || 1));
+
+  //     for (const x of newMap.keys()) {
+  //       if (newMap.get(x) > maxVal) {
+  //         voteCat = x;
+  //         maxVal = newMap.get(x);
+  //       } else if (newMap.get(x) === maxVal) {
+  //         flag = false;
+  //         break;
+  //       }
+  //     }
+
+  //     // 무효표가 아니면 특정 이름을 보내고 아니면 무효 보냄
+  //     if (flag) {
+  //       socket.emit('dayVote result', voteCat);
+  //     } else {
+  //       socket.emit('dayVote result', '');
+  //     }
+
+  //     voteResult = [];
+  //     voteCat = '';
+  //     maxVal = 0;
+  //     flag = true;
+  //   }
+  // });
+
+  // socket.on('nightVote', name => {
+  //   console.log(name);
+  // });
 });
 
 server.listen(3000, () => {

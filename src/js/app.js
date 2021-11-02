@@ -172,5 +172,5 @@ document.querySelector('.info__users > button').onclick = e => {
 
   //   console.log('selected');
   const selected = checked[0].children[2].textContent;
-  socket.emit('vote', selected);
+  socket.emit('dayVote', selected);
 };
