@@ -85,9 +85,18 @@ socket.on('currentUsers', civiluser => {
 });
 
 socket.on('user disconnect', user => {
-  //   console.log('hi');
   currentUsers = user;
   renderUsers();
+});
+
+socket.on('get secret-code', secretCode => {
+  document.querySelector('.info__message-content').textContent = secretCode;
+  console.log('citizen');
+});
+
+socket.on('get mafia-code', code => {
+  document.querySelector('.info__message-content').textContent = code;
+  console.log('mafia');
 });
 
 // 타이머 설정 기능
