@@ -6,12 +6,26 @@
     @include basicStyle;
     @include boxShadow;
     width: 49%;
-    background-color: $sky-blue;
+    background-color: $day-background-color;
     height: 75vh;
     display: flex;
     flex-flow: column;
     justify-content: center;
     // overflow: scroll;
+
+    &.pending,
+    &.beginning {
+      background-color: $initial-background-color;
+    }
+
+    &.day {
+      background-color: $day-background-color;
+    }
+
+    &.night {
+      background-color: $night-background-color;
+      color: $night-font-color;
+    }
   }
 
   &__header {
@@ -24,21 +38,20 @@
     // margin-top: -1%;
   }
 
-  &__fish-img {
+  &__img-pending,
+  &__img-beginning {
     width: 25%;
-    // height: 15%;
     max-height: 70px;
   }
-  &__day-img {
+  &__img-day {
     width: 15%;
-    height: 10%;
     max-height: 100px;
   }
-  &__night-img {
+  &__img-night {
     width: 15%;
-    height: 20%;
     max-height: 100px;
   }
+
   &__time {
     width: 50%;
 
@@ -83,16 +96,8 @@
       width: 20%;
       padding: rem(20px);
       text-align: center;
-<<<<<<< Updated upstream
-      line-height: rem(70px);
-      text-overflow: ellipsis;
-      word-break: break-all;
-      overflow: hidden;
-      white-space: nowrap;
-=======
       line-height: rem(35px);
       word-break: keep-all;
->>>>>>> Stashed changes
     }
     &-content {
       @include boxShadow;
