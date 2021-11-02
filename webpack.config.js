@@ -64,8 +64,8 @@ module.exports = {
     port: 'auto',
     // https://webpack.js.org/configuration/dev-server/#devserverproxy
     // proxy: {
-    //   '/todos': {
-    //     target: 'http://localhost:5500/todos',
+    //   '/': {
+    //     target: 'http://localhost:3000',
     //     pathRewrite: { '^/todos': '' },
     //   },
     // },
