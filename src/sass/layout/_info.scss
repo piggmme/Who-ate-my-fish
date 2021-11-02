@@ -8,6 +8,9 @@
     width: 49%;
     background-color: $sky-blue;
     height: 75vh;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
     // overflow: scroll;
   }
 
@@ -23,7 +26,7 @@
 
   &__fish-img {
     width: 25%;
-    height: 15%;
+    // height: 15%;
     max-height: 70px;
   }
   &__day-img {
@@ -80,6 +83,10 @@
       padding: rem(20px);
       text-align: center;
       line-height: rem(70px);
+      text-overflow: ellipsis;
+      word-break: break-all;
+      overflow: hidden;
+      white-space: nowrap;
     }
     &-content {
       @include boxShadow;
@@ -99,14 +106,14 @@
   &__users {
     position: relative;
     padding-top: 30px;
+    // height: 250px;
 
     fieldset {
       background-color: $white;
       @include basicStyle();
-
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 1fr);
+      grid-template-columns: repeat(3, auto);
+      grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
     }
 
