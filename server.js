@@ -12,45 +12,6 @@ const io = new Server(server, {
   },
 });
 
-// http 통신을 위한 cors
-// TODO: 특정 url만 접근할 수 있게 cors 설정!
-// app.use(cors());
-// app.use(express.static('public'));
-
-// app.get('/', (req, res) => {
-//   res.send('hi');
-//   // res.sendFile(__dirname + '/index.html');
-// });
-
-// const CHARACTER = [
-//   ['네로', './images/cats/cat6.png'],
-//   ['오드아이', './images/cats/cat2.png'],
-//   ['삼색이', './images/cats/cat3.png'],
-//   ['치즈', './images/cats/cat4.png'],
-//   ['샴', './images/cats/cat5.png'],
-// ];
-
-// const civilUsers = [];
-
-// const mapNameId = {};
-
-// const userUpdate = socketId => {
-//   const userInfo = CHARACTER.shift();
-//   civilUsers.push(userInfo);
-//   mapNameId[userInfo[0]] = socketId;
-
-//   return userInfo;
-// };
-
-// // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civiluSers 제공!2
-// io.on('connection', socket => {
-//   if (civilUsers.length < 5) {
-//     userUpdate(socket.id);
-//     io.to(socket.id).emit('user update', userUpdate());
-//     io.emit('currentUsers', civilUsers);
-//   }
-// });
-
 // 사용자는 5명으로 제한됨.
 const user = (() => {
   const users = [];
@@ -94,8 +55,7 @@ const user = (() => {
   };
 })();
 
-// socket.io ---------------------------------------------
-
+// 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
   const catInfo = user.add(socket.id);
 
