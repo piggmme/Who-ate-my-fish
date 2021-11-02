@@ -55,6 +55,7 @@ const STAGETIME = {
 // [{name : "네로", img_url: "/src/img-1.png" }]
 let currentUsers = [];
 let currentState = 'pending';
+let isCitizen = true;
 const jailUsers = [];
 
 const renderUsers = () => {
@@ -89,14 +90,20 @@ socket.on('user disconnect', user => {
   renderUsers();
 });
 
-socket.on('get secret-code', secretCode => {
+socket.on('get secret-code', (secretCode, bool) => {
   document.querySelector('.info__message-content').textContent = secretCode;
   console.log('citizen');
+
+  // 자신이 시민인지 확인
+  isCitizen = bool;
 });
 
-socket.on('get mafia-code', code => {
+socket.on('get mafia-code', (code, bool) => {
   document.querySelector('.info__message-content').textContent = code;
   console.log('mafia');
+
+  // 자신이 마피아인지 확인
+  isCitizen = bool;
 });
 
 // 게임 스테이지 변경 이벤트
@@ -117,13 +124,18 @@ const setTime = status => {
 };
 
 // ---------------------- current-status에 따라 UI 변경 ---------------------------
-// info 섹션 배경 색상 변경
-// info img 변경 - pending/start -> fish.png, day -> sun.png, night -> moon.png
+// info 섹션 배경 색상 변경(changeInfoColorMode)
+// info 이미지 변경(changeInfoImage)
 // game-status 변경
-// pending/start -> '곧 게임이 시작됩니다.'
+// pending/beginning -> '곧 게임이 시작됩니다.'
 // day -> '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
 // night/citizen -> '시민은 밤에 활동할 수 없습니다.'
 // night/mafia -> '감옥에 가둘 고양이를 선택하세요.'
+
+const changeInfoColorMode = () => {
+  const $infoContainer = document.querySelector('.info__container');
+  $infoContainer.classList.replace($infoContainer.classList[1], currentState);
+};
 
 const changeInfoImage = () => {
   document.querySelectorAll('.info__header > img').forEach($img => {
@@ -133,9 +145,16 @@ const changeInfoImage = () => {
   });
 };
 
-const changeInfoColorMode = () => {
-  const $infoContainer = document.querySelector('.info__container');
-  $infoContainer.classList.replace($infoContainer.classList[1], currentState);
+const changeInfoGameStatus = () => {
+  const $infoGameStatus = document.querySelector('.info__game-status');
+  $infoGameStatus.innerHTML =
+    currentState === 'pending' || currentState === 'beginning'
+      ? '곧 게임이 시작됩니다.'
+      : currentState === 'day'
+      ? '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
+      : isCitizen
+      ? '시민은 밤에 활동할 수 없습니다.'
+      : '감옥에 가둘 고양이를 선택하세요.';
 };
 
 socket.on('change gameState', status => {
@@ -153,6 +172,9 @@ socket.on('change gameState', status => {
 
   // 인포 이미지 변경
   changeInfoImage();
+
+  // 인포 메시지 변경
+  changeInfoGameStatus();
 });
 
 // 투표 기능

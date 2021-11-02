@@ -111,11 +111,11 @@ io.on('connection', socket => {
 
       setTimeout(() => {
         gameInfo.getCitizens().forEach(civil => {
-          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode());
+          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode(), true);
         });
 
-        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '???');
-      }, 5000);
+        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '', false);
+      }, 6000);
     }
 
     io.to(socket.id).emit('user update', catInfo);
