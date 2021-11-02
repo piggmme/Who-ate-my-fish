@@ -1,21 +1,30 @@
 @use './../utils' as *;
 @use './../components' as *;
 
-// // 데스크탑
-// @include respond-above(768px) {
-// }
+// 데스크탑
+@include respond-above(md) {
+  .full-chat {
+    &__container {
+      width: 49%;
+    }
+  }
+}
 
-// // 모바일
-// @include respond-below(768px) {
-// }
+// 모바일
+@include respond-below(md) {
+  .full-chat {
+    &__container {
+      width: 100%;
+    }
+  }
+}
 
 .full-chat {
   &__container {
     @include basicStyle;
     @include boxShadow;
-    width: 49%;
-    background-color: $white;
     height: 75vh;
+    background-color: $white;
     overflow: scroll;
   }
   &__item {

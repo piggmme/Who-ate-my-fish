@@ -1,24 +1,41 @@
 @use './../utils' as *;
 @use './../components' as *;
 
+// 데스크탑
+@include respond-above(md) {
+  .info {
+    &__container {
+      width: 49%;
+    }
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  .info {
+    &__container {
+      width: 100%;
+    }
+  }
+}
+
 .info {
   &__container {
-    @include basicStyle;
     @include boxShadow;
-    width: 49%;
-    background-color: $sky-blue;
+    @include basicStyle;
+    @include flexbox($justify-content: space-around, $direction: column);
+
     height: 75vh;
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    // overflow: scroll;
+
+    background-color: $sky-blue;
+    padding: 2%;
   }
 
   &__header {
-    @include flexbox(row, nowrap);
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
+    @include flexbox($align-items: center);
+    // display: flex;
+    // justify-content: center;
+    // align-items: flex-end;
     width: 100%;
     padding: 10px;
     // margin-top: -1%;
@@ -77,16 +94,13 @@
     @include flexbox($justify-content: center);
 
     &-title {
-      display: block;
+      @include flexbox(row, center, center);
       font-size: rem(20px);
       width: 30%;
       padding: rem(20px);
       text-align: center;
-      line-height: rem(70px);
-      text-overflow: ellipsis;
-      word-break: break-all;
-      overflow: hidden;
-      white-space: nowrap;
+      vertical-align: middle;
+      word-break: keep-all;
     }
     &-content {
       @include boxShadow;
@@ -106,7 +120,7 @@
   &__users {
     position: relative;
     padding-top: 30px;
-    // height: 250px;
+    overflow: scroll;
 
     fieldset {
       background-color: $white;
@@ -115,6 +129,7 @@
       grid-template-columns: repeat(3, auto);
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
+      height: 250px;
     }
 
     legend {
