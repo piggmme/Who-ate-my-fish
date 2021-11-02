@@ -14,7 +14,7 @@ const io = new Server(server, {
 
 // 사용자는 5명으로 제한됨.
 const user = (() => {
-  const users = [];
+  let users = [];
   const waitingUsers = [];
   const ch = Array(5).fill(0);
   const catsInfo = [
@@ -47,27 +47,29 @@ const user = (() => {
     currentUser() {
       return users;
     },
-    // delete(id, catName) {
-    //   const idx = catsInfo.map(el => el[0]).indexOf(catName);
-    //   ch[idx] = 0;
-    //   users = users.filter(([, usersId]) => usersId !== id);
-    // },
+    delete(catName) {
+      const idx = catsInfo.map(el => el[0]).indexOf(catName);
+      ch[idx] = 0;
+      users = users.filter(user => user[0] !== catName);
+    },
   };
 })();
 
 // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
   const catInfo = user.add(socket.id);
+  console.log(catInfo);
 
   if (catInfo) {
     io.to(socket.id).emit('user update', catInfo);
+    io.emit('currentUsers', user.currentUser());
 
-    io.emit('userInfo', user.currentUser());
-
+    socket.on('disconnect', () => {
+      user.delete(catInfo[0]);
+      console.log(user.currentUser());
+      io.emit('user disconnect', user.currentUser());
+    });
     // 연결이 끊어진 경우
-    // socket.on('disconnect', () => {
-    //   user.delete(socket.id, curCatName);
-    // });
   } else {
     console.log('waiting');
   }

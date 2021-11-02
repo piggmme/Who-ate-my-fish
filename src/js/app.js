@@ -54,6 +54,12 @@ socket.on('currentUsers', civiluser => {
   renderUsers();
 });
 
+socket.on('user disconnect', user => {
+  //   console.log('hi');
+  currentUsers = user;
+  renderUsers();
+});
+
 // 타이머 설정 기능
 // const setTime = status => {
 //   const miliseconds = STAGETIME[status];
