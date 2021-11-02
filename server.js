@@ -12,6 +12,7 @@ const io = new Server(server, {
   },
 });
 
+// http 통신을 위한 cors
 // app.use(cors());
 // app.use(express.static('public'));
 
