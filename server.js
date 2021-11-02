@@ -63,6 +63,7 @@ const user = (() => {
 const gameInfo = (() => {
   let citizens = [];
   let mafia = [];
+  const secretCode = '햄버거버거';
 
   return {
     getCitizens() {
@@ -70,6 +71,9 @@ const gameInfo = (() => {
     },
     getMafia() {
       return mafia;
+    },
+    getSecretCode() {
+      return secretCode;
     },
     setCitizens(citizensArray) {
       citizens = [...citizensArray];
@@ -80,6 +84,13 @@ const gameInfo = (() => {
     },
   };
 })();
+
+const GAMESTAGE = {
+  PENDING: 'pending',
+  BEGINNING: 'beginning',
+  DAYVOTE: 'dayVote',
+  NIGHTVOTE: 'nightVote',
+};
 
 // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
@@ -106,6 +117,17 @@ io.on('connection', socket => {
     if (user.currentUser().length === 5) {
       gameInfo.setCitizens(user.currentUser());
       gameInfo.setMafia(getRandom());
+      io.emit('timer settings', GAMESTAGE.BEGINNING);
+
+      setTimeout(() => {
+        gameInfo.getCitizens().forEach(civil => {
+          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode());
+        });
+
+        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '???');
+      }, 5000);
+
+      console.log('hi');
     }
 
     io.to(socket.id).emit('user update', catInfo);
