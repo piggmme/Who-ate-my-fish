@@ -17,7 +17,7 @@ const getRandom = () => Math.floor(Math.random() * 5); // 0 ~ 4
 // 사용자는 5명으로 제한됨.
 const user = (() => {
   let users = [];
-  const waitingUsers = [];
+  // const waitingUsers = [];
   const ch = Array(5).fill(0);
   const catsInfo = [
     ['오드아이', './images/cats/cat2.png'],
@@ -38,10 +38,10 @@ const user = (() => {
 
   return {
     add(id) {
-      if (users.length === 5) {
-        waitingUsers.push(id);
-        return false;
-      }
+      // if (users.length === 5) {
+      //   waitingUsers.push(id);
+      //   return false;
+      // }
       const catInfo = randomCat();
       users.push([...catInfo, id]);
       return catInfo;
@@ -49,9 +49,9 @@ const user = (() => {
     currentUser() {
       return users;
     },
-    setWaitingUsers(id) {
-      waitingUsers.push(id);
-    },
+    // setWaitingUsers(id) {
+    //   waitingUsers.push(id);
+    // },
     delete(id, catName) {
       const idx = catsInfo.map(el => el[0]).indexOf(catName);
       ch[idx] = 0;
@@ -98,7 +98,7 @@ io.on('connection', socket => {
   if (user.currentUser().length < 5) {
     catInfo = user.add(socket.id);
   } else {
-    user.setWaitingUsers(socket.id);
+    io.to(socket.id).emit('fullRoom');
   }
 
   // console.log(catInfo);
@@ -115,7 +115,7 @@ io.on('connection', socket => {
         });
 
         io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '???');
-      }, 5000);
+      }, 6000);
     }
 
     io.to(socket.id).emit('user update', catInfo);
@@ -133,6 +133,10 @@ io.on('connection', socket => {
   } else {
     console.log('waiting');
   }
+
+  socket.on('force disconnected', () => {
+    socket.disconnect(true);
+  });
 
   io.emit('currentUsers', user.currentUser());
 

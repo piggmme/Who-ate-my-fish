@@ -128,6 +128,11 @@ socket.on('change gameState', status => {
   // 투표 비활성화 활성화 이벤트
 });
 
+socket.on('fullRoom', () => {
+  alert('방이 다 찼습니다');
+  socket.emit('force disconnected');
+});
+
 // 투표 기능
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
