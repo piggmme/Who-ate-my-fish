@@ -120,6 +120,7 @@ const setTime = status => {
   lap += 1;
 
   if (miliseconds <= 0) clearInterval(interval);
+  console.log(miliseconds, lap);
 
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
     seconds < 10 ? '0' + seconds : seconds
@@ -159,6 +160,52 @@ const changeInfoGameStatus = () => {
       ? '시민은 밤에 활동할 수 없습니다.'
       : '감옥에 가둘 고양이를 선택하세요.';
 };
+const toggleVoteBtn = status => {
+  // pending 이면 모두 비활성화
+  if (status === 'pending') {
+    // radio 버튼 비활성화
+    [...document.querySelectorAll('.info__users > fieldset > label')]
+      .map(child => child.children)
+      .map(el => {
+        el[0].disabled = true;
+        return el[0];
+      });
+    // 선택완료 버튼 비활성화
+    document.querySelector('.info__users > button').disabled = true;
+  } else if (status === 'day') {
+    // radio 버튼 비활성화
+    [...document.querySelectorAll('.info__users > fieldset > label')]
+      .map(child => child.children)
+      .map(el => {
+        el[0].disabled = false;
+        return el[0];
+      });
+    // 선택완료 버튼 비활성화
+    document.querySelector('.info__users > button').disabled = false;
+  } else if (status === 'night') {
+    if (isCitizen) {
+      [...document.querySelectorAll('.info__users > fieldset > label')]
+        .map(child => child.children)
+        .map(el => {
+          el[0].disabled = false;
+          return el[0];
+        });
+      // 선택완료 버튼 비활성화
+      document.querySelector('.info__users > button').disabled = false;
+    } else {
+      [...document.querySelectorAll('.info__users > fieldset > label')]
+        .map(child => child.children)
+        .map(el => {
+          el[0].disabled = true;
+          return el[0];
+        });
+      // 선택완료 버튼 비활성화
+      document.querySelector('.info__users > button').disabled = true;
+    }
+  }
+  // day면 모두 활성화
+  // night면 마피아 시민은 비활성화, 마피아는 활성화
+};
 
 socket.on('change gameState', status => {
   if (currentState === status) return;
@@ -178,6 +225,7 @@ socket.on('change gameState', status => {
 
   // 인포 메시지 변경
   changeInfoGameStatus();
+  toggleVoteBtn(currentState);
 });
 
 // 투표 기능
@@ -192,5 +240,9 @@ document.querySelector('.info__users > button').onclick = e => {
 
   //   console.log('selected');
   const selected = checked[0].children[2].textContent;
-  socket.emit('vote', selected);
+  socket.emit('dayVote', selected);
+
+  if (!isCitizen && currentState === 'night') {
+    socket.emit('nightVote', selected);
+  }
 };
