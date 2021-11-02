@@ -40,17 +40,20 @@ const user = (() => {
         waitingUsers.push(id);
         return false;
       }
+      console.log(users);
       const catInfo = randomCat();
-      users.push(catInfo);
+      console.log(catInfo);
+      users.push([...catInfo, id]);
+      console.log('users: ' + users);
       return catInfo;
     },
     currentUser() {
       return users;
     },
-    delete(catName) {
+    delete(id, catName) {
       const idx = catsInfo.map(el => el[0]).indexOf(catName);
       ch[idx] = 0;
-      users = users.filter(user => user[0] !== catName);
+      users = users.filter(user => user[2] !== id);
     },
   };
 })();
@@ -58,14 +61,19 @@ const user = (() => {
 // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
   const catInfo = user.add(socket.id);
-  console.log(catInfo);
+  // console.log(catInfo);
 
   if (catInfo) {
     io.to(socket.id).emit('user update', catInfo);
     io.emit('currentUsers', user.currentUser());
 
+    // chat message이벤트가 발생한 경우
+    socket.on('chat message', msg => {
+      io.emit('chat message', [...catInfo, msg, socket.id]);
+    });
+
     socket.on('disconnect', () => {
-      user.delete(catInfo[0]);
+      user.delete(socket.id, catInfo[0]);
       console.log(user.currentUser());
       io.emit('user disconnect', user.currentUser());
     });
@@ -75,6 +83,11 @@ io.on('connection', socket => {
   }
 });
 
+// 특정 소켓(socket)을 제외한 모든 사람들에게 전달하고 싶을 경우
+// io.on('connection', socket => {
+//   socket.broadcast.emit('hi');
+// });
+
 server.listen(3000, () => {
-  console.log('listening on *: 3000');
+  console.log('listening on *:3000');
 });
