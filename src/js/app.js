@@ -24,7 +24,7 @@ const STAGETIME = {
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
 // [{name : "네로", img_url: "/src/img-1.png" }]
 let currentUsers = [];
-const currentState = 'pending';
+let currentState = 'pending';
 const jailUsers = [];
 
 const renderUsers = () => {
@@ -55,18 +55,28 @@ socket.on('currentUsers', civiluser => {
 });
 
 // 타이머 설정 기능
-const setTime = status => {
-  const miliseconds = STAGETIME[status];
+let interval = null;
+let lap = 0;
+
+const setTime = (status, lap) => {
+  const miliseconds = STAGETIME[status] - lap * 1000;
   const minutes = Math.ceil(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
 
+  if (miliseconds === 0) clearInterval(interval);
+
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
-    seconds < 10 ? seconds : seconds
+    seconds < 10 ? '0' + seconds : seconds
   }`;
 };
 
 socket.on('timer setting', status => {
   if (currentState === status) return;
 
-  setTimeout(status);
+  currentState = status;
+  lap = 0;
+
+  interval = setInterval(setTime, 1000, currentState, lap++);
 });
+
+// 투표 결과에 따라 프로필 및 vote-container 이미지 변경
