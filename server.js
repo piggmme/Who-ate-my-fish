@@ -88,22 +88,13 @@ const gameInfo = (() => {
 const GAMESTAGE = {
   PENDING: 'pending',
   BEGINNING: 'beginning',
-  DAYVOTE: 'dayVote',
-  NIGHTVOTE: 'nightVote',
+  DAY: 'day',
+  NIGHT: 'night',
 };
 
 // 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
 io.on('connection', socket => {
   let catInfo = '';
-<<<<<<< HEAD
-
-  if (user.currentUser().length < 5) {
-    catInfo = user.add(socket.id);
-  } else {
-    io.emit('timer setting', 'beginning');
-    user.setWaitingUsers(socket.id);
-  }
-=======
   if (user.currentUser().length < 5) {
     catInfo = user.add(socket.id);
   } else {
@@ -111,13 +102,12 @@ io.on('connection', socket => {
   }
 
   // console.log(catInfo);
->>>>>>> 5df4217b7331b35e4429479deb8e841d5bbf106e
 
   if (catInfo) {
     if (user.currentUser().length === 5) {
       gameInfo.setCitizens(user.currentUser());
       gameInfo.setMafia(getRandom());
-      io.emit('timer settings', GAMESTAGE.BEGINNING);
+      io.emit('change gameState', GAMESTAGE.BEGINNING);
 
       setTimeout(() => {
         gameInfo.getCitizens().forEach(civil => {
@@ -148,6 +138,11 @@ io.on('connection', socket => {
   }
 
   io.emit('currentUsers', user.currentUser());
+
+  // 각 클라이언트가 선택한 고양이 이름 받기.
+  socket.on('vote', name => {
+    console.log(name);
+  });
 });
 
 server.listen(3000, () => {

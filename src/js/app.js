@@ -46,8 +46,8 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 const STAGETIME = {
   pending: 0,
   beginning: 5000,
-  dayVote: 180000,
-  nightVote: 60000,
+  day: 180000,
+  night: 60000,
 };
 
 // ---------------------- pending ---------------------------
@@ -65,7 +65,7 @@ const renderUsers = () => {
     .map(
       (user, i) =>
         `<label>
-            <input type="radio" id="user${i + 1}" name="user${i + 1}" />
+            <input type="radio" id="user${i + 1}" name="user" disabled />
             <img src="${user[1]}" alt="플레이어 캐릭터" />
             <span class="user-name">${user[0]}</span>
         </label>`
@@ -99,7 +99,7 @@ socket.on('get mafia-code', code => {
   console.log('mafia');
 });
 
-// 타이머 설정 기능
+// 게임 스테이지 변경 이벤트
 let interval = null;
 let lap = 0;
 
@@ -111,18 +111,34 @@ const setTime = status => {
 
   if (miliseconds <= 0) clearInterval(interval);
 
-  console.log(miliseconds, lap);
-
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
     seconds < 10 ? '0' + seconds : seconds
   }`;
 };
 
-socket.on('timer setting', status => {
+socket.on('change gameState', status => {
   if (currentState === status) return;
 
   currentState = status;
   lap = 0;
 
+  // 타이머 변경 이벤트
   interval = setInterval(setTime, 1000, currentState, lap);
+
+  // 투표 비활성화 활성화 이벤트
 });
+
+// 투표 기능
+document.querySelector('.info__users > button').onclick = e => {
+  e.preventDefault();
+  //   console.log([...document.querySelector('.info__users > fieldset').children].map(child => child));
+  const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
+    child => child.children[0].checked
+  );
+
+  if (checked.length <= 0) return;
+
+  //   console.log('selected');
+  const selected = checked[0].children[2].textContent;
+  socket.emit('vote', selected);
+};
