@@ -24,6 +24,7 @@ const STAGETIME = {
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
 // [{name : "네로", img_url: "/src/img-1.png" }]
 let currentUsers = [];
+const currentState = 'pending';
 const jailUsers = [];
 
 const renderUsers = () => {
@@ -54,6 +55,18 @@ socket.on('currentUsers', civiluser => {
 });
 
 // 타이머 설정 기능
+const setTime = status => {
+  const miliseconds = STAGETIME[status];
+  const minutes = Math.ceil(miliseconds / 1000 / 60);
+  const seconds = Math.ceil((miliseconds / 1000) % 60);
+
+  document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
+    seconds < 10 ? seconds : seconds
+  }`;
+};
+
 socket.on('timer setting', status => {
-  document.querySelector('.timer').innerHTML = '00:00';
+  if (currentState === status) return;
+
+  setTimeout(status);
 });
