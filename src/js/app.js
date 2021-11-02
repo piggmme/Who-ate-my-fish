@@ -116,9 +116,30 @@ const setTime = status => {
   }`;
 };
 
+// ---------------------- current-status에 따라 UI 변경 ---------------------------
+// info 섹션 배경 색상 변경
+// info img 변경 - pending/start -> fish.png, day -> sun.png, night -> moon.png
+// game-status 변경
+// pending/start -> '곧 게임이 시작됩니다.'
+// day -> '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
+// night/citizen -> '시민은 밤에 활동할 수 없습니다.'
+// night/mafia -> '감옥에 가둘 고양이를 선택하세요.'
+
+const changeInfoImage = () => {
+  document.querySelectorAll('.info__header > img').forEach($img => {
+    $img.classList.contains('info__img-' + currentState)
+      ? $img.removeAttribute('hidden')
+      : $img.setAttribute('hidden', '');
+  });
+};
+
+const changeInfoColorMode = () => {
+  const $infoContainer = document.querySelector('.info__container');
+  $infoContainer.classList.replace($infoContainer.classList[1], currentState);
+};
+
 socket.on('change gameState', status => {
   if (currentState === status) return;
-
   currentState = status;
   lap = 0;
 
@@ -126,6 +147,12 @@ socket.on('change gameState', status => {
   interval = setInterval(setTime, 1000, currentState, lap);
 
   // 투표 비활성화 활성화 이벤트
+
+  // 인포 배경색 변경
+  changeInfoColorMode();
+
+  // 인포 이미지 변경
+  changeInfoImage();
 });
 
 socket.on('fullRoom', () => {
