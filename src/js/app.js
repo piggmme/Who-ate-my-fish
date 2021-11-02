@@ -3,6 +3,36 @@ import io from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
 
+// -----------------채팅 영역----------------------- //
+
+document.querySelector('.chat-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const $input = document.querySelector('.chat-form input');
+  if ($input.value) {
+    socket.emit('chat message', $input.value);
+    $input.value = '';
+  }
+});
+
+// chat message 이벤트를 받은 경우, li에 요소 추가
+socket.on('chat message', ([curUser, img, msg, id]) => {
+  const $li = document.createElement('li');
+  $li.className = `full-chat__item ${id === socket.id ? 'me' : 'other'}`;
+  $li.innerHTML = `
+      <img src="${img}" alt="" class="full-chat__item-img" />
+      <span class="full-chat__user-name">${curUser}</span>
+      <div class="full-chat__item-msg">
+          ${msg}
+      </div>`;
+
+  const $chatList = document.querySelector('.full-chat__list');
+  const $chatContainer = document.querySelector('.full-chat__container');
+  $chatList.appendChild($li);
+  $chatContainer.scrollTop = $chatList.scrollHeight;
+});
+
+// ------------------------------------------------- //
+
 // http통신 예제
 // const fetchTodo = async () => {
 //   const ho = await axios.get('http://localhost:3000');
@@ -54,16 +84,25 @@ socket.on('currentUsers', civiluser => {
   renderUsers();
 });
 
+socket.on('user disconnect', user => {
+  //   console.log('hi');
+  currentUsers = user;
+  renderUsers();
+});
+
 // 타이머 설정 기능
 let interval = null;
 let lap = 0;
 
-const setTime = (status, lap) => {
+const setTime = status => {
   const miliseconds = STAGETIME[status] - lap * 1000;
-  const minutes = Math.ceil(miliseconds / 1000 / 60);
+  const minutes = Math.floor(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
+  lap += 1;
 
-  if (miliseconds === 0) clearInterval(interval);
+  if (miliseconds <= 0) clearInterval(interval);
+
+  console.log(miliseconds, lap);
 
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
     seconds < 10 ? '0' + seconds : seconds
@@ -76,7 +115,5 @@ socket.on('timer setting', status => {
   currentState = status;
   lap = 0;
 
-  interval = setInterval(setTime, 1000, currentState, lap++);
+  interval = setInterval(setTime, 1000, currentState, lap);
 });
-
-// 투표 결과에 따라 프로필 및 vote-container 이미지 변경
