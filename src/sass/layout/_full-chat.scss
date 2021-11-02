@@ -1,27 +1,38 @@
 @use './../utils' as *;
 @use './../components' as *;
 
-// // 데스크탑
-// @include respond-above(768px) {
-// }
+// 데스크탑
+@include respond-above(md) {
+  .full-chat {
+    &__container {
+      width: 49%;
+    }
+  }
+}
 
-// // 모바일
-// @include respond-below(768px) {
-// }
+// 모바일
+@include respond-below(md) {
+  .full-chat {
+    &__container {
+      width: 100%;
+    }
+  }
+}
 
 .full-chat {
   &__container {
     @include basicStyle;
     @include boxShadow;
-    width: 49%;
-    background-color: $white;
     height: 75vh;
-    overflow: scroll;
+    background-color: $white;
+    overflow-x: hidden;
+    overflow-y: scroll;
   }
   &__item {
     width: 100%;
     position: relative;
     margin: rem(16px) 0;
+    word-break: break-all;
 
     &-img {
       width: 17%;
@@ -36,7 +47,7 @@
     align-self: center;
     background-color: $mint;
     margin-top: rem(30px);
-    width: 80%;
+    // width: 80%;
     padding: rem(16px);
     border-radius: rem(10px);
     @include boxShadow;

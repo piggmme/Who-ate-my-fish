@@ -1,17 +1,34 @@
 @use './../utils' as *;
 @use './../components' as *;
 
+// 데스크탑
+@include respond-above(md) {
+  .info {
+    &__container {
+      width: 49%;
+    }
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  .info {
+    &__container {
+      width: 100%;
+    }
+  }
+}
+
 .info {
   &__container {
-    @include basicStyle;
     @include boxShadow;
-    width: 49%;
-    background-color: $day-background-color;
+    @include basicStyle;
+    @include flexbox($justify-content: space-around, $direction: column);
+
     height: 75vh;
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    // overflow: scroll;
+
+    background-color: $day-background-color;
+    padding: 2%;
 
     &.pending,
     &.beginning {
@@ -29,10 +46,10 @@
   }
 
   &__header {
-    @include flexbox(row, nowrap);
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
+    @include flexbox($align-items: center);
+    // display: flex;
+    // justify-content: center;
+    // align-items: flex-end;
     width: 100%;
     padding: 10px;
     // margin-top: -1%;
@@ -91,11 +108,12 @@
     gap: rem(10px);
 
     &-title {
-      display: block;
+      @include flexbox(row, center, center);
       font-size: rem(20px);
       width: 20%;
       padding: rem(20px);
       text-align: center;
+      vertical-align: middle;
       line-height: rem(35px);
       word-break: keep-all;
     }
@@ -117,7 +135,7 @@
   &__users {
     position: relative;
     padding-top: 30px;
-    // height: 250px;
+    overflow: scroll;
 
     fieldset {
       background-color: $white;
@@ -126,6 +144,7 @@
       grid-template-columns: repeat(3, auto);
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
+      height: 250px;
     }
 
     legend {
