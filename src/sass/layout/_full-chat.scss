@@ -25,12 +25,14 @@
     @include boxShadow;
     height: 75vh;
     background-color: $white;
-    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: scroll;
   }
   &__item {
     width: 100%;
     position: relative;
     margin: rem(16px) 0;
+    word-break: break-all;
 
     &-img {
       width: 17%;
@@ -45,7 +47,7 @@
     align-self: center;
     background-color: $mint;
     margin-top: rem(30px);
-    width: 80%;
+    // width: 80%;
     padding: rem(16px);
     border-radius: rem(10px);
     @include boxShadow;
