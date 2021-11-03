@@ -67,7 +67,14 @@ const gameInfo = {
   state: 'pending',
   totalUsers: [],
   jailUsers: [],
+  interval: null,
+  lap: 0,
+  isSelectBtn: false,
 };
+
+// let interval = null;
+// let lap = 0;
+// let isSelectBtn = false;
 
 // ---------------------- pending ---------------------------
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
@@ -113,8 +120,8 @@ socket.on('get secret-code', (secretCode, bool) => {
   player.isCitizen = bool;
 });
 
-socket.on('get mafia-code', (code, bool) => {
-  document.querySelector('.info__message-content').textContent = code;
+socket.on('get mafia-code', (_, bool) => {
+  document.querySelector('.info__message-content').textContent = '당신은 마피아 입니다';
 
   // 자신이 마피아인지 확인
   player.isCitizen = bool;
@@ -154,6 +161,21 @@ const changeInfoGameStatus = status => {
       : '감옥에 가둘 고양이를 선택하세요.';
 };
 
+// 선택 완료 버튼 상황에 따라서
+const controlButtonVisibility = toVisible => {
+  document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
+};
+
+document.querySelector('.info__users').onclick = e => {
+  if (!e.target.matches('img')) return;
+
+  if (!gameInfo.isSelectBtn) {
+    controlButtonVisibility(false);
+  } else {
+    controlButtonVisibility(true);
+  }
+};
+
 const toggleVoteDisable = isDisable => {
   [...document.querySelectorAll('.info__users > fieldset > label')]
     .map(child => child.children)
@@ -184,14 +206,15 @@ const sendVoteResult = () => {
   }
 };
 
-let interval = null;
-let lap = 0;
+window.addEventListener('DOMContentLoaded', () => {
+  toggleVoteDisable(true);
+});
 
 const setTime = status => {
-  const miliseconds = STAGETIME[status] - lap * 1000;
+  const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
   const minutes = Math.floor(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
-  lap += 1;
+  gameInfo.lap += 1;
 
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
     seconds < 10 ? '0' + seconds : seconds
@@ -199,21 +222,23 @@ const setTime = status => {
 
   if (miliseconds <= 0) {
     sendVoteResult();
-    clearInterval(interval);
+    clearInterval(gameInfo.interval);
   }
 };
 
 const startTimer = status => {
-  clearInterval(interval);
+  clearInterval(gameInfo.interval);
   document.querySelector('.timer').textContent = '00:00';
-  interval = setInterval(setTime, 1000, status, lap);
+
+  gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
 socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
+  gameInfo.isSelectBtn = false;
   gameInfo.state = status;
-  lap = 0;
+  gameInfo.lap = 0;
   // 타이머 변경 이벤트
   startTimer(gameInfo.state);
 
@@ -243,7 +268,10 @@ document.querySelector('.info__users > button').onclick = e => {
   audio.play();
 
   sendVoteResult();
-  toggleVoteDisable(false);
+  toggleVoteDisable(true);
+
+  gameInfo.isSelectBtn = true;
+  controlButtonVisibility(true);
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
