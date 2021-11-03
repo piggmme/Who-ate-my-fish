@@ -46,7 +46,7 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 // 단위 (ms)
 const STAGETIME = {
   pending: 0,
-  beginning: 5000,
+  beginning: 3000,
   day: 180000,
   night: 60000,
 };
@@ -188,7 +188,7 @@ const toggleVoteDisable = isDisable => {
 };
 
 const toggleVoteBtn = status => {
-  toggleVoteDisable(status === 'pending' || status === 'dead' ? true : status === 'day' ? false : !player.isCitizen);
+  toggleVoteDisable(status === 'pending' || status === 'dead' ? true : status === 'day' ? false : player.isCitizen);
 };
 
 const sendVoteResult = () => {
@@ -220,9 +220,9 @@ const setTime = status => {
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0) {
-    sendVoteResult();
+  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) {
     clearInterval(gameInfo.interval);
+    sendVoteResult();
   }
 };
 
@@ -256,7 +256,7 @@ socket.on('change gameState', status => {
 });
 
 socket.on('fullRoom', () => {
-  alert('방이 다 찼습니다');
+  alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
 });
 
@@ -276,16 +276,38 @@ document.querySelector('.info__users > button').onclick = e => {
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
 
-// 죽은사람 비활성화 처리
+const handleJailCatInInfoUsers = (name, url) => {
+  const $labels = document.querySelectorAll('.info__users > fieldset label');
+  $labels.forEach($label => {
+    if ($label.querySelector('.user-name').textContent === name) {
+      $label.querySelector('img').src = url;
+      $label.querySelector('input').disabled = true;
+    }
+  });
+};
+
+// 감옥 고양이 비활성화 처리
 socket.on('vote result', ([name, url]) => {
-  if (player.name !== name) return;
+  console.log('hello', name);
+
+  // 감옥 고양이 렌더, 투표시 선택 못하게 표시
+  handleJailCatInInfoUsers(name, url);
+
+  console.log('dd', name);
+
+  if (player.name !== name) {
+    // alert(name + '은(는) 시민이였습니다!');
+    return;
+  }
+
+  // alert(name + '당신은 감옥에 갖혔습니다. 더 이상 투표랑 채팅은 하실 수 없습니다.');
 
   player.isAlive = false;
 
   // 입력창 비활성화
   document.querySelector('.chat-form input').disabled = true;
 
-  // 감옥 고양이 처리
+  // 감옥 고양이 프로필 처리
   document.querySelector('.info__profile-img').setAttribute('src', url);
 
   // 투표창 비활성화
