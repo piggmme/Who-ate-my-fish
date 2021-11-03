@@ -158,7 +158,8 @@ const toggleVoteDisable = isDisable => {
   [...document.querySelectorAll('.info__users > fieldset > label')]
     .map(child => child.children)
     .map(el => {
-      el[0].disabled = isDisable;
+      // 감옥 고양이는 투표 못함.
+      el[0].disabled = gameInfo.jailUsers.includes(el[2].textContent) || isDisable;
       return el[0];
     });
   // 선택완료 버튼 비활성화
@@ -259,6 +260,8 @@ const handleJailCatInInfoUsers = (name, url) => {
 socket.on('vote result', ([name, url]) => {
   // 감옥 고양이 렌더, 투표시 선택 못하게 표시
   handleJailCatInInfoUsers(name, url);
+  // 감옥 인원에 추가 => toggleVoteDisable 에서 처리할 예정임.
+  gameInfo.jailUsers.push(name);
 
   if (player.name !== name) {
     alert(name + '은(는) 시민이였습니다!');
