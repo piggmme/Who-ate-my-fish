@@ -107,6 +107,7 @@ const gameInfo = (() => {
   let citizens = [];
   let mafia = [];
   const jailCat = [];
+  const voteStatus = [];
   const secretCode = secretCodeObject.word[getRandomNumber(secretCodeObject.word.length)];
 
   return {
@@ -121,6 +122,9 @@ const gameInfo = (() => {
     },
     getSecretCode() {
       return secretCode;
+    },
+    getvoteStatus() {
+      return voteStatus;
     },
     setCitizens(citizensArray) {
       citizens = [...citizensArray];

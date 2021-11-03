@@ -8,6 +8,7 @@ const socket = io('http://localhost:3000');
 
 const sound = (() => {
   const SOUND = {
+    pending: './sound/pending.mp3',
     beginning: './sound/pending.mp3',
     day: './sound/day.mp3',
     night: './sound/night.mp3',
@@ -27,7 +28,6 @@ const sound = (() => {
 })();
 
 // -----------------채팅 영역----------------------- //
-
 chatInit();
 
 document.querySelector('.chat-form').addEventListener('submit', e => {
@@ -346,4 +346,16 @@ document.querySelector('.modal-close').onclick = () => {
 
 document.querySelector('.modal-retry').onclick = () => {
   window.location.href = '/';
+};
+
+document.querySelector('.music-button').onclick = e => {
+  if (e.target.alt === '음악 중지') {
+    sound.play(gameInfo.state);
+    e.target.src = './images/play.png';
+    e.target.alt = '음악 듣기';
+  } else {
+    sound.pause();
+    e.target.src = './images/stop.png';
+    e.target.alt = '음악 중지';
+  }
 };
