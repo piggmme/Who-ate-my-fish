@@ -8,21 +8,19 @@ const socket = io('http://localhost:3000');
 
 const sound = (() => {
   const SOUND = {
-    pending: './sound/pending.mp3',
-    beginning: './sound/pending.mp3',
-    day: './sound/day.mp3',
-    night: './sound/night.mp3',
-    voteFin: './sound/voteFin.mp3',
-    voteUser: './sound/voteUser.m4a',
+    pending: new Audio('./sound/pending.mp3'),
+    beginning: new Audio('./sound/pending.mp3'),
+    day: new Audio('./sound/day.mp3'),
+    night: new Audio('./sound/night.mp3'),
+    voteFin: new Audio('./sound/voteFin.mp3'),
+    voteUser: new Audio('./sound/voteUser.m4a'),
   };
-  let curSound = new Audio();
   return {
     play(state) {
-      curSound = new Audio(SOUND[state]);
-      curSound.play();
+      SOUND[state].play();
     },
     pause() {
-      curSound.pause();
+      Object.keys(SOUND).forEach(state => SOUND[state].pause());
     },
   };
 })();
@@ -89,6 +87,8 @@ const gameInfo = {
   state: 'pending',
   totalUsers: [],
   jailUsers: [],
+  civilUserNum: 0,
+  mafiaNum: 0,
   interval: null,
   lap: 0,
   isSelectBtn: false,
@@ -185,6 +185,8 @@ const changeInfoGameStatus = status => {
 
 // 선택 완료 버튼 상황에 따라서
 const controlButtonVisibility = toVisible => {
+  if (gameInfo.state === 'beginning' || gameInfo.state === 'pending') return;
+  if (gameInfo.state === 'night' && player.isCitizen) return;
   document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
 };
 
@@ -253,14 +255,28 @@ const startTimer = status => {
   gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
-socket.on('change gameState', status => {
+socket.on('change gameState', (status, civilUser, mafiaUser) => {
   if (gameInfo.state === status) return;
 
   gameInfo.isSelectBtn = false;
-  sound.play(status);
+
+  if (document.querySelector('.music-button').alt === '음악 듣기') {
+    sound.pause();
+    sound.play(status);
+  }
 
   gameInfo.state = status;
   gameInfo.lap = 0;
+
+  // 현재 시민 수 구하기
+  if (civilUser !== undefined && mafiaUser !== undefined) {
+    gameInfo.civilUserNum = civilUser;
+    gameInfo.mafiaNum = mafiaUser;
+  }
+
+  document.querySelector('.info__users > fieldset > legend').textContent = `시민 ${
+    gameInfo.civilUserNum - gameInfo.jailUsers.length
+  } / 마피아 ${gameInfo.mafiaNum}`;
 
   startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);

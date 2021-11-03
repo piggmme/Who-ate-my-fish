@@ -133,9 +133,7 @@ const gameInfo = (() => {
     getSecretCode() {
       return secretCode;
     },
-    getvoteStatus() {
-      return voteStatus;
-    },
+
     setCitizens(citizensArray) {
       citizens = [...citizensArray];
     },
@@ -164,7 +162,8 @@ io.on('connection', socket => {
     if (user.getCurrentUser().length === 5) {
       gameInfo.setCitizens(user.getCurrentUser());
       gameInfo.setMafia(getRandomNumber(CATSNUMBER));
-      io.emit('change gameState', GAMESTAGE.BEGINNING);
+
+      io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, 1);
 
       setTimeout(() => {
         gameInfo.getCitizens().forEach(civil => {
@@ -229,12 +228,12 @@ io.on('connection', socket => {
       if (isDraw) {
         io.emit('change gameState', 'night');
       } else if (mostVoted === gameInfo.getMafia()[0]) {
-        io.emit('game result', GAMESTATUS.CIVILWIN);
+        io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
       } else {
         io.emit('vote result', voteResult);
         gameInfo.setJailCat(mostVoted);
         gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
-          ? io.emit('game result', GAMESTATUS.MAFIAWIN)
+          ? io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0])
           : io.emit('change gameState', 'night');
       }
     }
