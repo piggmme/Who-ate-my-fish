@@ -5,6 +5,12 @@ const server = require('http').createServer(app);
 const { Server } = require('socket.io');
 const secretCodeObject = require('./db/secretCode.json');
 
+let voteStatus = [];
+const GAMESTATUS = {
+  CIVILWIN: 0,
+  MAFIAWIN: 1,
+};
+
 /**
  * Create socket io and setting cors for accessing from different url
  */
@@ -52,6 +58,11 @@ const catsData = (() => {
     ['샴', './images/cats/cat5.png'],
     ['고등어', './images/cats/cat1.png'],
     ['치즈', './images/cats/cat4.png'],
+    // ['오드아이', './images/cats/cat2.png', './images/cats/cat2_jail.png'],
+    // ['삼색이', './images/cats/cat3.png', './images/cats/cat3_jail.png'],
+    // ['샴', './images/cats/cat5.png', './images/cats/cat5_jail.png'],
+    // ['고등어', './images/cats/cat1.png', './images/cats/cat1_jail.png'],
+    // ['치즈', './images/cats/cat4.png', './images/cats/cat4_jail.png'],
   ];
 
   return {
@@ -135,12 +146,6 @@ const gameInfo = (() => {
     },
   };
 })();
-
-let voteStatus = [];
-const GAMESTATUS = {
-  CIVILWIN: 0,
-  MAFIAWIN: 1,
-};
 
 /**
  * Socket connect
@@ -227,13 +232,6 @@ io.on('connection', socket => {
       } else {
         io.emit('vote result', voteResult);
         gameInfo.setJailCat(mostVoted);
-        console.log('마피아 몇명? ', gameInfo.getMafia());
-        console.log(
-          '당선: ',
-          mostVoted,
-          gameInfo.getCitizens().length - gameInfo.getJailCat().length,
-          gameInfo.getMafia().length + 1
-        );
         gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
           ? io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0])
           : io.emit('change gameState', 'night');
@@ -243,7 +241,14 @@ io.on('connection', socket => {
 
   socket.on('night vote', selected => {
     if (selected) {
-      io.emit('vote result', catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0]);
+      io.emit(
+        'vote result',
+        selected,
+        catsData
+          .getCatsInfo()
+          .filter(catInfo => catInfo[0] === selected)[0][1]
+          .slice(0, -4) + '_jail.png'
+      );
       io.emit('change gameState', 'day');
     }
   });
@@ -252,11 +257,3 @@ io.on('connection', socket => {
 server.listen(3000, () => {
   console.log('listening on *:3000');
 });
-
-// const catsInfo = [
-//   ['오드아이', './images/cats/cat2.png'],
-//   ['삼색이', './images/cats/cat3.png'],
-//   ['샴', './images/cats/cat5.png'],
-//   ['고등어', './images/cats/cat1.png'],
-//   ['치즈', './images/cats/cat4.png'],
-// ];
