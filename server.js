@@ -3,8 +3,11 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const { Server } = require('socket.io');
-// const cors = require('cors');
+const secretCodeObject = require('./db/secretCode.json');
 
+/**
+ * Create socket io and setting cors for accessing from different url
+ */
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:8080',
@@ -12,12 +15,36 @@ const io = new Server(server, {
   },
 });
 
-const getRandom = () => Math.floor(Math.random() * 5); // 0 ~ 4
+/**
+ * Constant object for indicating game stage
+ * @constant
+ * @type {string}
+ */
+const GAMESTAGE = {
+  PENDING: 'pending',
+  BEGINNING: 'beginning',
+  DAY: 'day',
+  NIGHT: 'night',
+};
 
-// 사용자는 5명으로 제한됨.
-const user = (() => {
-  let users = [];
-  // const waitingUsers = [];
+/**
+ * Constant number in catsInfo data
+ * @type {number}
+ */
+const CATSNUMBER = 5;
+
+/**
+ * Get random number in the range of 0 ~ number-1
+ * @param {number}
+ * @returns {number}
+ */
+const getRandomNumber = number => Math.floor(Math.random() * number);
+
+/**
+ * Closure for cats data
+ * @returns {functions}
+ */
+const catsData = (() => {
   const ch = Array(5).fill(0);
   const catsInfo = [
     ['오드아이', './images/cats/cat2.png'],
@@ -27,37 +54,60 @@ const user = (() => {
     ['치즈', './images/cats/cat4.png'],
   ];
 
-  const randomCat = () => {
-    let idx = Math.floor(Math.random() * 5); // 0 ~ 4
-    while (ch[idx] !== 0) {
-      idx = Math.floor(Math.random() * 5);
-    }
-    ch[idx] = 1;
-    return catsInfo[idx];
+  return {
+    getRandomCatInfo() {
+      let idx = getRandomNumber(CATSNUMBER);
+      while (ch[idx] !== 0) {
+        idx = getRandomNumber(CATSNUMBER);
+      }
+      ch[idx] = 1;
+      return catsInfo[idx];
+    },
+    getCatsInfo() {
+      return catsInfo;
+    },
+    getCheckArray() {
+      return ch;
+    },
   };
+})();
+
+/**
+ * Closure for paticipating user
+ * @returns {functions};
+ */
+const user = (() => {
+  let users = [];
 
   return {
+    getCurrentUser() {
+      return users;
+    },
     add(id) {
-      const catInfo = randomCat();
+      const catInfo = catsData.getRandomCatInfo();
       users.push([...catInfo, id]);
       return catInfo;
     },
-    currentUser() {
-      return users;
-    },
     delete(id, catName) {
-      const idx = catsInfo.map(el => el[0]).indexOf(catName);
-      ch[idx] = 0;
+      const idx = catsData
+        .getCatsInfo()
+        .map(el => el[0])
+        .indexOf(catName);
+      catsData.getCheckArray()[idx] = 0;
       users = users.filter(user => user[2] !== id);
     },
   };
 })();
 
+/**
+ * Closure for game information
+ * @returns {functions}
+ */
 const gameInfo = (() => {
   let citizens = [];
   let mafia = [];
   const jailCat = [];
-  const secretCode = '햄버거버거';
+  const secretCode = secretCodeObject.word[getRandomNumber(secretCodeObject.word.length)];
 
   return {
     getCitizens() {
@@ -82,28 +132,21 @@ const gameInfo = (() => {
   };
 })();
 
-const GAMESTAGE = {
-  PENDING: 'pending',
-  BEGINNING: 'beginning',
-  DAY: 'day',
-  NIGHT: 'night',
-};
-
-// 들어올 때마다 모든 사람들한테 이벤트 방출해서 civilusers 제공!
+/**
+ * Socket connect
+ */
 io.on('connection', socket => {
   let catInfo = '';
-  if (user.currentUser().length < 5) {
+  if (user.getCurrentUser().length < 5) {
     catInfo = user.add(socket.id);
   } else {
     io.to(socket.id).emit('fullRoom');
   }
 
-  // console.log(catInfo);
-  // 5명 인원수 이하
   if (catInfo) {
-    if (user.currentUser().length === 5) {
-      gameInfo.setCitizens(user.currentUser());
-      gameInfo.setMafia(getRandom());
+    if (user.getCurrentUser().length === 5) {
+      gameInfo.setCitizens(user.getCurrentUser());
+      gameInfo.setMafia(getRandomNumber(CATSNUMBER));
       io.emit('change gameState', GAMESTAGE.BEGINNING);
 
       setTimeout(() => {
@@ -112,6 +155,7 @@ io.on('connection', socket => {
         });
 
         io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '', false);
+        io.emit('change gameState', GAMESTAGE.DAY);
       }, 6000);
     }
 
@@ -124,7 +168,7 @@ io.on('connection', socket => {
 
     socket.on('disconnect', () => {
       user.delete(socket.id, catInfo[0]);
-      io.emit('user disconnect', user.currentUser());
+      io.emit('user disconnect', user.getCurrentUser());
     });
   } else {
     console.log('user disconnected');
@@ -134,7 +178,7 @@ io.on('connection', socket => {
     socket.disconnect(true);
   });
 
-  io.emit('currentUsers', user.currentUser());
+  io.emit('currentUsers', user.getCurrentUser());
 
   // let voteResult = [];
   // let voteCat = '';
