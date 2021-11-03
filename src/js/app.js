@@ -36,15 +36,6 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 
 // ------------------------------------------------- //
 
-// http통신 예제
-// const fetchTodo = async () => {
-//   const ho = await axios.get('http://localhost:3000');
-//   console.log(ho);
-// };
-
-// fetchTodo();
-// axios.get('http://localhost:3000').then(resolve => console.log(resolve));
-
 // 단위 (ms)
 const STAGETIME = {
   pending: 0,
@@ -53,19 +44,27 @@ const STAGETIME = {
   night: 60000,
 };
 
+const PLAYER = {
+  name: '',
+  isAlive: true,
+  isCitizen: true,
+};
+
+const GAMEINFO = {
+  state: 'pending',
+  totalUsers: [],
+  jailUsers: [],
+};
+
 // ---------------------- pending ---------------------------
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
 // [{name : "네로", img_url: "/src/img-1.png" }]
-let currentUsers = [];
-let currentState = 'pending';
-let isCitizen = true;
-const jailUsers = [];
 
 const renderUsers = () => {
   const $filedset = document.querySelector('.info__users > fieldset');
   $filedset.innerHTML = `
-  <legend>인원 ${currentUsers.length} / 5</legend>
-  ${currentUsers
+  <legend>인원 ${GAMEINFO.totalUsers.length} / 5</legend>
+  ${GAMEINFO.totalUsers
     .map(
       (user, i) =>
         `<label>
@@ -84,12 +83,12 @@ socket.on('user update', ([name, url]) => {
 });
 
 socket.on('currentUsers', civiluser => {
-  currentUsers = civiluser;
+  GAMEINFO.totalUsers = civiluser;
   renderUsers();
 });
 
 socket.on('user disconnect', user => {
-  currentUsers = user;
+  GAMEINFO.totalUsers = user;
   renderUsers();
 });
 
@@ -97,14 +96,14 @@ socket.on('get secret-code', (secretCode, bool) => {
   document.querySelector('.info__message-content').textContent = secretCode;
 
   // 자신이 시민인지 확인
-  isCitizen = bool;
+  PLAYER.isCitizen = bool;
 });
 
 socket.on('get mafia-code', (code, bool) => {
   document.querySelector('.info__message-content').textContent = code;
 
   // 자신이 마피아인지 확인
-  isCitizen = bool;
+  PLAYER.isCitizen = bool;
 });
 
 // 게임 스테이지 변경 이벤트
@@ -120,12 +119,12 @@ socket.on('get mafia-code', (code, bool) => {
 
 const changeInfoColorMode = () => {
   const $infoContainer = document.querySelector('.info__container');
-  $infoContainer.classList.replace($infoContainer.classList[1], currentState);
+  $infoContainer.classList.replace($infoContainer.classList[1], GAMEINFO.state);
 };
 
 const changeInfoImage = () => {
   document.querySelectorAll('.info__header > img').forEach($img => {
-    $img.classList.contains('info__img-' + currentState)
+    $img.classList.contains('info__img-' + GAMEINFO.state)
       ? $img.removeAttribute('hidden')
       : $img.setAttribute('hidden', '');
   });
@@ -134,11 +133,11 @@ const changeInfoImage = () => {
 const changeInfoGameStatus = () => {
   const $infoGameStatus = document.querySelector('.info__game-status');
   $infoGameStatus.innerHTML =
-    currentState === 'pending' || currentState === 'beginning'
+    GAMEINFO.state === 'pending' || GAMEINFO.state === 'beginning'
       ? '곧 게임이 시작됩니다.'
-      : currentState === 'day'
+      : GAMEINFO.state === 'day'
       ? '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
-      : isCitizen
+      : PLAYER.isCitizen
       ? '시민은 밤에 활동할 수 없습니다.'
       : '감옥에 가둘 고양이를 선택하세요.';
 };
@@ -165,7 +164,7 @@ const toggleVoteBtn = status => {
     // 선택완료 버튼 비활성화
     document.querySelector('.info__users > button').disabled = false;
   } else if (status === 'night') {
-    if (isCitizen) {
+    if (PLAYER.isCitizen) {
       [...document.querySelectorAll('.info__users > fieldset > label')]
         .map(child => child.children)
         .map(el => {
@@ -215,16 +214,16 @@ const startTimer = status => {
 };
 
 socket.on('change gameState', status => {
-  if (currentState === status) return;
+  if (GAMEINFO.state === status) return;
 
-  currentState = status;
-  console.log(currentState);
+  GAMEINFO.state = status;
+  console.log(GAMEINFO.state);
   lap = 0;
   // 타이머 변경 이벤트
-  startTimer(currentState);
+  startTimer(GAMEINFO.state);
 
   // 투표 비활성화 활성화 이벤트
-  toggleVoteBtn(currentState);
+  toggleVoteBtn(GAMEINFO.state);
 
   // 인포 배경색 변경
   changeInfoColorMode();
