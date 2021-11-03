@@ -8,6 +8,7 @@ const socket = io('http://localhost:3000');
 
 const sound = (() => {
   const SOUND = {
+    pending: './sound/pending.mp3',
     beginning: './sound/pending.mp3',
     day: './sound/day.mp3',
     night: './sound/night.mp3',
@@ -219,10 +220,8 @@ const setTime = status => {
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) {
-    clearInterval(interval);
-    sendVoteResult();
-  }
+  if (miliseconds <= 0) clearInterval(interval);
+  if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
 };
 
 const startTimer = status => {
@@ -351,9 +350,11 @@ document.querySelector('.modal-retry').onclick = () => {
 
 document.querySelector('.music-button').onclick = e => {
   if (e.target.alt === '음악 중지') {
+    sound.play(gameInfo.state);
     e.target.src = './images/play.png';
     e.target.alt = '음악 듣기';
   } else {
+    sound.pause();
     e.target.src = './images/stop.png';
     e.target.alt = '음악 중지';
   }
