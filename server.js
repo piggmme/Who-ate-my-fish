@@ -132,6 +132,12 @@ const gameInfo = (() => {
   };
 })();
 
+let voteStatus = [];
+const GAMESTATUS = {
+  CIVILWIN: 0,
+  MAFIAWIN: 1,
+};
+
 /**
  * Socket connect
  */
@@ -180,14 +186,14 @@ io.on('connection', socket => {
 
   io.emit('currentUsers', user.getCurrentUser());
 
-  const voteStatus = [];
-
   const getMaxNum = nums => nums.reduce((acc, curr) => Math.max(acc, curr), nums[0]);
+
+  const judgeGameResult = (alive, mafia) => (alive - mafia > 1 ? GAMESTATUS.CIVILWIN : GAMESTATUS.MAFIAWIN);
 
   // 각 클라이언트가 선택한 고양이 이름 받기.
   socket.on('day vote', selected => {
-    voteStatus.push(selected);
-    console.log('!!');
+    voteStatus = [...voteStatus, selected];
+    // console.log(selected);
 
     // if (
     //   voteStatus.length === user.currentUser().length - gameInfo.getJailCat().length &&
@@ -200,6 +206,7 @@ io.on('connection', socket => {
       voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length &&
       voteStatus.some(result => result)
     ) {
+      // console.log(voteStatus);
       const voteCounts = new Map();
 
       voteStatus.forEach(result => voteCounts.set(result, voteCounts.get(result) + 1 || 1));
@@ -212,11 +219,35 @@ io.on('connection', socket => {
 
       const voteResult = [
         mostVoted,
-        isDraw ? null : catsData.getCatsInfo().filter(catInfo => catInfo[0] === mostVoted)[0][1],
+        isDraw
+          ? null
+          : catsData
+              .getCatsInfo()
+              .filter(catInfo => catInfo[0] === mostVoted)[0][1]
+              .slice(0, -4) + '_jail.png',
       ];
 
       console.log(voteResult);
-      io.emit('vote result', voteResult);
+
+      if (isDraw) {
+        io.emit('change gameState', 'night');
+      } else if (mostVoted === gameInfo.getMafia[0]) {
+        io.emit('game result', GAMESTATUS.MAFIAWIN);
+      } else {
+        io.emit('change gameState', 'night');
+
+        io.emit('vote result', voteResult);
+      }
+
+      // const [citizens, jailCats, mafias] = [gameInfo.getCitizens(), gameInfo.getJailCat(), gameInfo.getMafia()];
+
+      // isDraw
+      //   ? io.emit('change gameState', 'night')
+      //   : io.emit(
+      //       'game result',
+      //       judgeGameResult(citizens.length - jailCats.length, mafias.length),
+      //       gameInfo.getMafia()[0]
+      //     );
 
       // // 무효표가 아니면 특정 이름을 보내고 아니면 무효 보냄
       // if (flag) {
@@ -233,7 +264,9 @@ io.on('connection', socket => {
   });
 
   socket.on('night vote', selected => {
-    console.log(selected);
+    if (selected) {
+      io.emit('vote result', [selected, catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0][1]]);
+    }
   });
 });
 
