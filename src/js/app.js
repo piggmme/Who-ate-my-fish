@@ -220,10 +220,8 @@ const setTime = status => {
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) {
-    clearInterval(interval);
-    sendVoteResult();
-  }
+  if (miliseconds <= 0) clearInterval(interval);
+  if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
 };
 
 const startTimer = status => {
