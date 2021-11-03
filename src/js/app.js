@@ -69,7 +69,7 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 const STAGETIME = {
   pending: 0,
   beginning: 3000,
-  day: 180000,
+  day: 100000,
   night: 60000,
 };
 
@@ -89,7 +89,14 @@ const gameInfo = {
   state: 'pending',
   totalUsers: [],
   jailUsers: [],
+  interval: null,
+  lap: 0,
+  isSelectBtn: false,
 };
+
+// let interval = null;
+// let lap = 0;
+// let isSelectBtn = false;
 
 // ---------------------- pending ---------------------------
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
@@ -135,8 +142,8 @@ socket.on('get secret-code', (secretCode, bool) => {
   player.isCitizen = bool;
 });
 
-socket.on('get mafia-code', (code, bool) => {
-  document.querySelector('.info__message-content').textContent = code;
+socket.on('get mafia-code', (_, bool) => {
+  document.querySelector('.info__message-content').textContent = '당신은 마피아 입니다';
 
   // 자신이 마피아인지 확인
   player.isCitizen = bool;
@@ -176,6 +183,21 @@ const changeInfoGameStatus = status => {
       : '감옥에 가둘 고양이를 선택하세요.';
 };
 
+// 선택 완료 버튼 상황에 따라서
+const controlButtonVisibility = toVisible => {
+  document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
+};
+
+document.querySelector('.info__users').onclick = e => {
+  if (!e.target.matches('img')) return;
+
+  if (!gameInfo.isSelectBtn) {
+    controlButtonVisibility(false);
+  } else {
+    controlButtonVisibility(true);
+  }
+};
+
 const toggleVoteDisable = isDisable => {
   [...document.querySelectorAll('.info__users > fieldset > label')]
     .map(child => child.children)
@@ -207,40 +229,40 @@ const sendVoteResult = () => {
   }
 };
 
-let interval = null;
-let lap = 0;
+window.addEventListener('DOMContentLoaded', () => {
+  toggleVoteDisable(true);
+});
 
 const setTime = status => {
-  const miliseconds = STAGETIME[status] - lap * 1000;
+  const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
   const minutes = Math.floor(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
-  lap += 1;
+  gameInfo.lap += 1;
 
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0) clearInterval(interval);
+  if (miliseconds <= 0) clearInterval(gameInfo.interval);
   if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) sendVoteResult();
 };
 
 const startTimer = status => {
-  clearInterval(interval);
+  clearInterval(gameInfo.interval);
   document.querySelector('.timer').textContent = '00:00';
-  interval = setInterval(setTime, 1000, status, lap);
+  gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
 socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
+  gameInfo.isSelectBtn = false;
   // sound.play(status);
 
   gameInfo.state = status;
-  lap = 0;
-  // 타이머 변경 이벤트
-  startTimer(gameInfo.state);
+  gameInfo.lap = 0;
 
-  // 투표 비활성화 활성화 이벤트
+  startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);
 
   // 인포 배경색 변경
@@ -256,6 +278,8 @@ socket.on('change gameState', status => {
 socket.on('fullRoom', () => {
   alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
+  // 투표 비활성화 활성화 이벤트
+  //   toggleVoteBtn(currentState);
 });
 
 // 투표 기능
@@ -268,6 +292,9 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sendVoteResult();
   toggleVoteDisable(true);
+
+  gameInfo.isSelectBtn = true;
+  controlButtonVisibility(true);
 };
 
 // ------------------- 소리 영역 ----------------------- //
@@ -299,7 +326,7 @@ const handleJailCatInInfoUsers = (name, url) => {
 // 감옥 고양이 비활성화 처리
 socket.on('vote result', result => {
   // 감옥간 고양이 없다면 종료
-  if (!result) return;
+  if (result[0] === null) return;
 
   const [name, url] = result;
   // 감옥 고양이 렌더, 투표시 선택 못하게 표시
