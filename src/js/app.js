@@ -233,7 +233,7 @@ const startTimer = status => {
 socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
-  sound.play(status);
+  // sound.play(status);
 
   gameInfo.state = status;
   lap = 0;
