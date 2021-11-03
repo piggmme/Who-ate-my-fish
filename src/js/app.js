@@ -254,6 +254,7 @@ socket.on('game result', (result, mafiaName) => {
       : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`;
   document.querySelector('.modal-img').src =
     GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
+  document.querySelector('.modal-img').alt = GAMESTATUS.CIVILWIN === result ? '철창에 갇힌 고양이' : '웃고 있는 고양이';
   document.querySelector('.modal').classList.remove('hidden');
 });
 
