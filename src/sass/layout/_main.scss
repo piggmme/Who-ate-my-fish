@@ -128,7 +128,6 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
-  display: none;
 
   &-window {
     position: relative;
@@ -141,6 +140,7 @@ body {
     text-align: center;
     padding: 8%;
     font-size: rem(40px);
+    line-height: 1.2;
   }
 
   &-retry {
@@ -160,7 +160,7 @@ body {
     position: absolute;
     top: 2%;
     right: 2%;
-    width: rem(30px);
+    width: rem(25px);
     font-size: rem(20px);
     cursor: pointer;
     background-color: $red;

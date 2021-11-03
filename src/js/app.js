@@ -44,13 +44,19 @@ const STAGETIME = {
   night: 60000,
 };
 
-const PLAYER = {
+const GAMESTATUS = {
+  CIVILWIN: 0,
+  MAFIAWIN: 1,
+  CONTINUE: 2,
+};
+
+const player = {
   name: '',
   isAlive: true,
   isCitizen: true,
 };
 
-const GAMEINFO = {
+const gameInfo = {
   state: 'pending',
   totalUsers: [],
   jailUsers: [],
@@ -63,8 +69,8 @@ const GAMEINFO = {
 const renderUsers = () => {
   const $filedset = document.querySelector('.info__users > fieldset');
   $filedset.innerHTML = `
-  <legend>인원 ${GAMEINFO.totalUsers.length} / 5</legend>
-  ${GAMEINFO.totalUsers
+  <legend>인원 ${gameInfo.totalUsers.length} / 5</legend>
+  ${gameInfo.totalUsers
     .map(
       (user, i) =>
         `<label>
@@ -83,12 +89,12 @@ socket.on('user update', ([name, url]) => {
 });
 
 socket.on('currentUsers', civiluser => {
-  GAMEINFO.totalUsers = civiluser;
+  gameInfo.totalUsers = civiluser;
   renderUsers();
 });
 
 socket.on('user disconnect', user => {
-  GAMEINFO.totalUsers = user;
+  gameInfo.totalUsers = user;
   renderUsers();
 });
 
@@ -96,14 +102,14 @@ socket.on('get secret-code', (secretCode, bool) => {
   document.querySelector('.info__message-content').textContent = secretCode;
 
   // 자신이 시민인지 확인
-  PLAYER.isCitizen = bool;
+  player.isCitizen = bool;
 });
 
 socket.on('get mafia-code', (code, bool) => {
   document.querySelector('.info__message-content').textContent = code;
 
   // 자신이 마피아인지 확인
-  PLAYER.isCitizen = bool;
+  player.isCitizen = bool;
 });
 
 // 게임 스테이지 변경 이벤트
@@ -119,12 +125,12 @@ socket.on('get mafia-code', (code, bool) => {
 
 const changeInfoColorMode = () => {
   const $infoContainer = document.querySelector('.info__container');
-  $infoContainer.classList.replace($infoContainer.classList[1], GAMEINFO.state);
+  $infoContainer.classList.replace($infoContainer.classList[1], gameInfo.state);
 };
 
 const changeInfoImage = () => {
   document.querySelectorAll('.info__header > img').forEach($img => {
-    $img.classList.contains('info__img-' + GAMEINFO.state)
+    $img.classList.contains('info__img-' + gameInfo.state)
       ? $img.removeAttribute('hidden')
       : $img.setAttribute('hidden', '');
   });
@@ -133,11 +139,11 @@ const changeInfoImage = () => {
 const changeInfoGameStatus = () => {
   const $infoGameStatus = document.querySelector('.info__game-status');
   $infoGameStatus.innerHTML =
-    GAMEINFO.state === 'pending' || GAMEINFO.state === 'beginning'
+    gameInfo.state === 'pending' || gameInfo.state === 'beginning'
       ? '곧 게임이 시작됩니다.'
-      : GAMEINFO.state === 'day'
+      : gameInfo.state === 'day'
       ? '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
-      : PLAYER.isCitizen
+      : player.isCitizen
       ? '시민은 밤에 활동할 수 없습니다.'
       : '감옥에 가둘 고양이를 선택하세요.';
 };
@@ -164,7 +170,7 @@ const toggleVoteBtn = status => {
     // 선택완료 버튼 비활성화
     document.querySelector('.info__users > button').disabled = false;
   } else if (status === 'night') {
-    if (PLAYER.isCitizen) {
+    if (player.isCitizen) {
       [...document.querySelectorAll('.info__users > fieldset > label')]
         .map(child => child.children)
         .map(el => {
@@ -214,16 +220,16 @@ const startTimer = status => {
 };
 
 socket.on('change gameState', status => {
-  if (GAMEINFO.state === status) return;
+  if (gameInfo.state === status) return;
 
-  GAMEINFO.state = status;
-  console.log(GAMEINFO.state);
+  gameInfo.state = status;
+  console.log(gameInfo.state);
   lap = 0;
   // 타이머 변경 이벤트
-  startTimer(GAMEINFO.state);
+  startTimer(gameInfo.state);
 
   // 투표 비활성화 활성화 이벤트
-  toggleVoteBtn(GAMEINFO.state);
+  toggleVoteBtn(gameInfo.state);
 
   // 인포 배경색 변경
   changeInfoColorMode();
@@ -251,4 +257,24 @@ document.querySelector('.info__users > button').onclick = e => {
 
   const selected = checked[0].children[2].textContent;
   socket.emit('dayVote', selected);
+};
+
+socket.on('game result', (result, mafiaName) => {
+  document.querySelector('.modal-title').innerHTML =
+    GAMESTATUS.CIVILWIN === result
+      ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
+      : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`;
+  document.querySelector('.modal-img').src =
+    GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
+  document.querySelector('.modal').classList.remove('hidden');
+});
+
+document.querySelector('.modal-close').onclick = () => {
+  document.querySelector('.modal').classList.add('hidden');
+  socket.emit('force disconnected');
+  alert('소켓 연결이 종료됩니다.');
+};
+
+document.querySelector('.modal-retry').onclick = () => {
+  window.location.href = '/';
 };

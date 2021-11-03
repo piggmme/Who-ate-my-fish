@@ -180,46 +180,9 @@ io.on('connection', socket => {
 
   io.emit('currentUsers', user.getCurrentUser());
 
-  // let voteResult = [];
-  // let voteCat = '';
-  // let maxVal = 0;
-  // let flag = true;
-
-  // 각 클라이언트가 선택한 고양이 이름 받기.
-  // socket.on('dayVote', name => {
-  //   voteResult.push(name);
-  //   if (voteResult.length === user.currentUser().length - gameInfo.getJailCat().length) {
-  //     const newMap = new Map();
-
-  //     voteResult.forEach(el => newMap.set(el, newMap.get(el) + 1 || 1));
-
-  //     for (const x of newMap.keys()) {
-  //       if (newMap.get(x) > maxVal) {
-  //         voteCat = x;
-  //         maxVal = newMap.get(x);
-  //       } else if (newMap.get(x) === maxVal) {
-  //         flag = false;
-  //         break;
-  //       }
-  //     }
-
-  //     // 무효표가 아니면 특정 이름을 보내고 아니면 무효 보냄
-  //     if (flag) {
-  //       socket.emit('dayVote result', voteCat);
-  //     } else {
-  //       socket.emit('dayVote result', '');
-  //     }
-
-  //     voteResult = [];
-  //     voteCat = '';
-  //     maxVal = 0;
-  //     flag = true;
-  //   }
-  // });
-
-  // socket.on('nightVote', name => {
-  //   console.log(name);
-  // });
+  // 투표 결과가 다 지난 후
+  // io.emit('vote result', [true, true, '네로']);
+  // io.emit('game result', 1, '네로');
 });
 
 server.listen(3000, () => {
