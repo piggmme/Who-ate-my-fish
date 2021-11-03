@@ -186,6 +186,7 @@ const changeInfoGameStatus = status => {
 // 선택 완료 버튼 상황에 따라서
 const controlButtonVisibility = toVisible => {
   if (gameInfo.state === 'beginning' || gameInfo.state === 'pending') return;
+  if (gameInfo.state === 'night' && player.isCitizen) return;
   document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
 };
 
