@@ -224,7 +224,7 @@ io.on('connection', socket => {
       if (isDraw) {
         io.emit('change gameState', 'night');
       } else if (mostVoted === gameInfo.getMafia()[0]) {
-        io.emit('game result', GAMESTATUS.CIVILWIN);
+        io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
       } else {
         io.emit('vote result', voteResult);
         gameInfo.setJailCat(mostVoted);
@@ -236,7 +236,7 @@ io.on('connection', socket => {
           gameInfo.getMafia().length + 1
         );
         gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
-          ? io.emit('game result', GAMESTATUS.MAFIAWIN)
+          ? io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0])
           : io.emit('change gameState', 'night');
       }
     }
