@@ -8,6 +8,7 @@
       width: 49%;
       height: 80vh;
       @include flexbox($justify-content: space-around, $direction: column);
+      overflow-y: auto;
     }
     &__profile {
       img {
@@ -149,7 +150,7 @@
   &__users {
     position: relative;
     padding-top: 30px;
-    overflow: scroll;
+    // overflow-y: auto;
 
     fieldset {
       background-color: $white;
@@ -158,7 +159,7 @@
       grid-template-columns: repeat(3, auto);
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
-      min-height: rem(260px);
+      // min-height: rem(260px);
     }
 
     legend {
