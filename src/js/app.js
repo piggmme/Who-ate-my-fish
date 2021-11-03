@@ -237,7 +237,7 @@ socket.on('change gameState', status => {
 });
 
 socket.on('fullRoom', () => {
-  alert('방이 다 찼습니다');
+  alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
 });
 
@@ -248,8 +248,9 @@ document.querySelector('.info__users > button').onclick = e => {
     child => child.children[0].checked
   );
 
-  if (checked.length <= 0) return;
-
-  const selected = checked[0].children[2].textContent;
-  socket.emit('dayVote', selected);
+  if (checked.length === 0) socket.emit('day vote', null);
+  else {
+    const selected = checked[0].children[2].textContent;
+    socket.emit('day vote', selected);
+  }
 };
