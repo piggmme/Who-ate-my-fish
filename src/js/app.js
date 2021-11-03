@@ -108,22 +108,6 @@ socket.on('get mafia-code', (code, bool) => {
 });
 
 // 게임 스테이지 변경 이벤트
-let interval = null;
-let lap = 0;
-
-const setTime = status => {
-  const miliseconds = STAGETIME[status] - lap * 1000;
-  const minutes = Math.floor(miliseconds / 1000 / 60);
-  const seconds = Math.ceil((miliseconds / 1000) % 60);
-  lap += 1;
-
-  if (miliseconds <= 0) clearInterval(interval);
-  console.log(miliseconds, lap);
-
-  document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
-    seconds < 10 ? '0' + seconds : seconds
-  }`;
-};
 
 // ---------------------- current-status에 따라 UI 변경 ---------------------------
 // info 섹션 배경 색상 변경(changeInfoColorMode)
@@ -205,16 +189,42 @@ const toggleVoteBtn = status => {
   // night면 마피아 시민은 비활성화, 마피아는 활성화
 };
 
+let interval = null;
+// let isPause = false;
+let lap = 0;
+
+const setTime = status => {
+  const miliseconds = STAGETIME[status] - lap * 1000;
+  const minutes = Math.floor(miliseconds / 1000 / 60);
+  const seconds = Math.ceil((miliseconds / 1000) % 60);
+  lap += 1;
+
+  document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
+    seconds < 10 ? '0' + seconds : seconds
+  }`;
+
+  if (miliseconds <= 0) {
+    clearInterval(interval);
+  }
+};
+
+const startTimer = status => {
+  clearInterval(interval);
+  document.querySelector('.timer').textContent = '00:00';
+  interval = setInterval(setTime, 1000, status, lap);
+};
+
 socket.on('change gameState', status => {
   if (currentState === status) return;
+
   currentState = status;
   console.log(currentState);
   lap = 0;
-
   // 타이머 변경 이벤트
-  interval = setInterval(setTime, 1000, currentState, lap);
+  startTimer(currentState);
 
   // 투표 비활성화 활성화 이벤트
+  toggleVoteBtn(currentState);
 
   // 인포 배경색 변경
   changeInfoColorMode();
@@ -224,7 +234,6 @@ socket.on('change gameState', status => {
 
   // 인포 메시지 변경
   changeInfoGameStatus();
-  toggleVoteBtn(currentState);
 });
 
 socket.on('fullRoom', () => {
@@ -243,11 +252,4 @@ document.querySelector('.info__users > button').onclick = e => {
 
   const selected = checked[0].children[2].textContent;
   socket.emit('dayVote', selected);
-<<<<<<< HEAD
-
-  if (!isCitizen && currentState === 'night') {
-    socket.emit('nightVote', selected);
-  }
-=======
->>>>>>> 877fa85715d301d10c3b528641059fc5e1845ec5
 };
