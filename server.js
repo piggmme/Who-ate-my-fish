@@ -235,7 +235,7 @@ io.on('connection', socket => {
 
       if (isDraw) {
         io.emit('change gameState', 'night');
-      } else if (mostVoted === gameInfo.getMafia[0]) {
+      } else if (mostVoted === gameInfo.getMafia()[0]) {
         io.emit('game result', GAMESTATUS.MAFIAWIN);
       } else {
         io.emit('change gameState', 'night');
