@@ -4,8 +4,30 @@ import chatInit from './chat';
 
 const socket = io('http://localhost:3000');
 
-// -----------------채팅 영역----------------------- //
+// ----------------- sound ----------------------- //
 
+const sound = (() => {
+  const SOUND = {
+    pending: './sound/pending.mp3',
+    beginning: './sound/pending.mp3',
+    day: './sound/day.mp3',
+    night: './sound/night.mp3',
+    voteFin: './sound/voteFin.mp3',
+    voteUser: './sound/voteUser.m4a',
+  };
+  let curSound = new Audio();
+  return {
+    play(state) {
+      curSound = new Audio(SOUND[state]);
+      curSound.play();
+    },
+    pause() {
+      curSound.pause();
+    },
+  };
+})();
+
+// -----------------채팅 영역----------------------- //
 chatInit();
 
 document.querySelector('.chat-form').addEventListener('submit', e => {
@@ -47,7 +69,7 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 const STAGETIME = {
   pending: 0,
   beginning: 3000,
-  day: 180000,
+  day: 100000,
   night: 60000,
 };
 
@@ -67,7 +89,14 @@ const gameInfo = {
   state: 'pending',
   totalUsers: [],
   jailUsers: [],
+  interval: null,
+  lap: 0,
+  isSelectBtn: false,
 };
+
+// let interval = null;
+// let lap = 0;
+// let isSelectBtn = false;
 
 // ---------------------- pending ---------------------------
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
@@ -113,8 +142,8 @@ socket.on('get secret-code', (secretCode, bool) => {
   player.isCitizen = bool;
 });
 
-socket.on('get mafia-code', (code, bool) => {
-  document.querySelector('.info__message-content').textContent = code;
+socket.on('get mafia-code', (_, bool) => {
+  document.querySelector('.info__message-content').textContent = '당신은 마피아 입니다';
 
   // 자신이 마피아인지 확인
   player.isCitizen = bool;
@@ -154,11 +183,27 @@ const changeInfoGameStatus = status => {
       : '감옥에 가둘 고양이를 선택하세요.';
 };
 
+// 선택 완료 버튼 상황에 따라서
+const controlButtonVisibility = toVisible => {
+  document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
+};
+
+document.querySelector('.info__users').onclick = e => {
+  if (!e.target.matches('img')) return;
+
+  if (!gameInfo.isSelectBtn) {
+    controlButtonVisibility(false);
+  } else {
+    controlButtonVisibility(true);
+  }
+};
+
 const toggleVoteDisable = isDisable => {
   [...document.querySelectorAll('.info__users > fieldset > label')]
     .map(child => child.children)
     .map(el => {
-      el[0].disabled = isDisable;
+      // 감옥 고양이는 투표 못함.
+      el[0].disabled = gameInfo.jailUsers.includes(el[2].textContent) || isDisable;
       return el[0];
     });
   // 선택완료 버튼 비활성화
@@ -184,40 +229,40 @@ const sendVoteResult = () => {
   }
 };
 
-let interval = null;
-let lap = 0;
+window.addEventListener('DOMContentLoaded', () => {
+  toggleVoteDisable(true);
+});
 
 const setTime = status => {
-  const miliseconds = STAGETIME[status] - lap * 1000;
+  const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
   const minutes = Math.floor(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
-  lap += 1;
+  gameInfo.lap += 1;
 
   document.querySelector('.timer').textContent = `${minutes < 10 ? '0' + minutes : minutes}:${
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) {
-    clearInterval(interval);
-    sendVoteResult();
-  }
+  if (miliseconds <= 0) clearInterval(gameInfo.interval);
+  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) sendVoteResult();
 };
 
 const startTimer = status => {
-  clearInterval(interval);
+  clearInterval(gameInfo.interval);
   document.querySelector('.timer').textContent = '00:00';
-  interval = setInterval(setTime, 1000, status, lap);
+  gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
 socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
-  gameInfo.state = status;
-  lap = 0;
-  // 타이머 변경 이벤트
-  startTimer(gameInfo.state);
+  gameInfo.isSelectBtn = false;
+  sound.play(status);
 
-  // 투표 비활성화 활성화 이벤트
+  gameInfo.state = status;
+  gameInfo.lap = 0;
+
+  startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);
 
   // 인포 배경색 변경
@@ -233,17 +278,37 @@ socket.on('change gameState', status => {
 socket.on('fullRoom', () => {
   alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
+  // 투표 비활성화 활성화 이벤트
+  //   toggleVoteBtn(currentState);
 });
 
 // 투표 기능
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
 
-  const audio = new Audio('./sound/mouse-click.mp3');
-  audio.play();
+  //   const audio = new Audio('./sound/voteFin.mp3');
+  //   audio.play();
+  sound.play('voteFin');
 
   sendVoteResult();
   toggleVoteDisable(true);
+
+  gameInfo.isSelectBtn = true;
+  controlButtonVisibility(true);
+};
+
+// ------------------- 소리 영역 ----------------------- //
+
+// 대기실 소리
+// window.addEventListener('DOMContentLoaded', () => {
+//   sound.play('pending');
+// });
+
+// 투표할 때 유저 프로필 클릭한 경우
+document.querySelector('.info__users > fieldset').onclick = e => {
+  if (!e.target.closest('label') || gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
+  if (e.target.closest('label').querySelector('input').disabled === true) return;
+  sound.play('voteUser');
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
@@ -259,14 +324,17 @@ const handleJailCatInInfoUsers = (name, url) => {
 };
 
 // 감옥 고양이 비활성화 처리
-socket.on('vote result', ([name, url]) => {
-  console.log('hello', name);
+socket.on('vote result', result => {
+  // 감옥간 고양이 없다면 종료
+  if (!result[0]) return;
 
+  const [name, url] = result;
   // 감옥 고양이 렌더, 투표시 선택 못하게 표시
   handleJailCatInInfoUsers(name, url);
+  // 감옥 인원에 추가 => toggleVoteDisable 에서 처리할 예정임.
+  gameInfo.jailUsers.push(name);
 
-  console.log('dd', name);
-
+  // 나는 감옥에 가지 않았다면
   if (player.name !== name) {
     // alert(name + '은(는) 시민이였습니다!');
     return;
@@ -287,6 +355,7 @@ socket.on('vote result', ([name, url]) => {
 });
 
 socket.on('game result', (result, mafiaName) => {
+  console.log('game over');
   document.querySelector('.modal-title').innerHTML =
     GAMESTATUS.CIVILWIN === result
       ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
@@ -304,4 +373,16 @@ document.querySelector('.modal-close').onclick = () => {
 
 document.querySelector('.modal-retry').onclick = () => {
   window.location.href = '/';
+};
+
+document.querySelector('.music-button').onclick = e => {
+  if (e.target.alt === '음악 중지') {
+    sound.play(gameInfo.state);
+    e.target.src = './images/play.png';
+    e.target.alt = '음악 듣기';
+  } else {
+    sound.pause();
+    e.target.src = './images/stop.png';
+    e.target.alt = '음악 중지';
+  }
 };

@@ -122,6 +122,9 @@ const gameInfo = (() => {
     getSecretCode() {
       return secretCode;
     },
+    getvoteStatus() {
+      return voteStatus;
+    },
     setCitizens(citizensArray) {
       citizens = [...citizensArray];
     },
@@ -190,8 +193,6 @@ io.on('connection', socket => {
   io.emit('currentUsers', user.getCurrentUser());
 
   const getMaxNum = nums => nums.reduce((acc, curr) => Math.max(acc, curr), nums[0]);
-
-  const isGameEnd = (alive, mafia) => (alive - mafia > 1 ? GAMESTATUS.CIVILWIN : GAMESTATUS.MAFIAWIN);
 
   socket.on('day vote', selected => {
     voteStatus = [...voteStatus, selected];
