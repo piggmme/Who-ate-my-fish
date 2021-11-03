@@ -192,6 +192,7 @@
       // width: 50%;
       max-width: rem(80px);
       border: 0;
+      cursor: pointer;
     }
 
     &-name {
@@ -202,6 +203,20 @@
       position: absolute;
       top: 0;
       right: 0;
+      z-index: 0;
+      visibility: visible;
+      border: 1px solid red;
+      background-color: red;
+      color: white;
+      border-radius: 5px;
+      transition: top 1s ease;
+    }
+
+    button.deactivate {
+      position: absolute;
+      top: 35px;
+      right: 0;
+      visibility: hidden;
       border: 1px solid red;
       background-color: red;
       color: white;
