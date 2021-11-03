@@ -47,7 +47,7 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 const STAGETIME = {
   pending: 0,
   beginning: 5000,
-  day: 10000,
+  day: 180000,
   night: 60000,
 };
 
