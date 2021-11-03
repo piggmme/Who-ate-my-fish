@@ -210,7 +210,7 @@ window.addEventListener('DOMContentLoaded', () => {
   toggleVoteDisable(true);
 });
 
-const setTime = status => {
+const setTimeNmode = status => {
   const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
   const minutes = Math.floor(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
@@ -224,26 +224,6 @@ const setTime = status => {
     clearInterval(gameInfo.interval);
     sendVoteResult();
   }
-};
-
-const startTimer = status => {
-  clearInterval(gameInfo.interval);
-  document.querySelector('.timer').textContent = '00:00';
-
-  gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
-};
-
-socket.on('change gameState', status => {
-  if (gameInfo.state === status) return;
-
-  gameInfo.isSelectBtn = false;
-  gameInfo.state = status;
-  gameInfo.lap = 0;
-  // 타이머 변경 이벤트
-  startTimer(gameInfo.state);
-
-  // 투표 비활성화 활성화 이벤트
-  toggleVoteBtn(gameInfo.state);
 
   // 인포 배경색 변경
   changeInfoColorMode(gameInfo.state);
@@ -253,11 +233,30 @@ socket.on('change gameState', status => {
 
   // 인포 메시지 변경
   changeInfoGameStatus(gameInfo.state);
+};
+
+const startTimer = status => {
+  clearInterval(gameInfo.interval);
+  document.querySelector('.timer').textContent = '00:00';
+  gameInfo.interval = setInterval(setTimeNmode, 1000, status, gameInfo.lap);
+};
+
+socket.on('change gameState', status => {
+  if (gameInfo.state === status) return;
+
+  gameInfo.isSelectBtn = false;
+  gameInfo.state = status;
+  gameInfo.lap = 0;
+
+  startTimer(gameInfo.state);
+  toggleVoteBtn(gameInfo.state);
 });
 
 socket.on('fullRoom', () => {
   alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
+  // 투표 비활성화 활성화 이벤트
+  //   toggleVoteBtn(currentState);
 });
 
 // 투표 기능
