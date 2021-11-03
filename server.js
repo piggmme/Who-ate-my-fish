@@ -192,7 +192,7 @@ io.on('connection', socket => {
 
   const getMaxNum = nums => nums.reduce((acc, curr) => Math.max(acc, curr), nums[0]);
 
-  const judgeGameResult = (alive, mafia) => (alive - mafia > 1 ? GAMESTATUS.CIVILWIN : GAMESTATUS.MAFIAWIN);
+  // const judgeGameResult = (alive, mafia) => (alive - mafia > 1 ? GAMESTATUS.CIVILWIN : GAMESTATUS.MAFIAWIN);
 
   // 각 클라이언트가 선택한 고양이 이름 받기.
   socket.on('day vote', selected => {
