@@ -4,6 +4,28 @@ import chatInit from './chat';
 
 const socket = io('http://localhost:3000');
 
+// ----------------- sound ----------------------- //
+
+const sound = (() => {
+  const SOUND = {
+    beginning: './sound/pending.mp3',
+    day: './sound/day.mp3',
+    night: './sound/night.mp3',
+    voteFin: './sound/voteFin.mp3',
+    voteUser: './sound/voteUser.m4a',
+  };
+  let curSound = new Audio();
+  return {
+    play(state) {
+      curSound = new Audio(SOUND[state]);
+      curSound.play();
+    },
+    pause() {
+      curSound.pause();
+    },
+  };
+})();
+
 // -----------------채팅 영역----------------------- //
 
 chatInit();
@@ -213,6 +235,8 @@ const startTimer = status => {
 socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
+  sound.play(status);
+
   gameInfo.state = status;
   lap = 0;
   // 타이머 변경 이벤트
@@ -240,11 +264,26 @@ socket.on('fullRoom', () => {
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
 
-  const audio = new Audio('./sound/mouse-click.mp3');
-  audio.play();
+  //   const audio = new Audio('./sound/voteFin.mp3');
+  //   audio.play();
+  sound.play('voteFin');
 
   sendVoteResult();
-  toggleVoteDisable(false);
+  toggleVoteDisable(true);
+};
+
+// ------------------- 소리 영역 ----------------------- //
+
+// 대기실 소리
+// window.addEventListener('DOMContentLoaded', () => {
+//   sound.play('pending');
+// });
+
+// 투표할 때 유저 프로필 클릭한 경우
+document.querySelector('.info__users > fieldset').onclick = e => {
+  if (!e.target.closest('label') || gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
+  if (e.target.closest('label').querySelector('input').disabled === true) return;
+  sound.play('voteUser');
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
