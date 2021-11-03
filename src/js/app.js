@@ -246,3 +246,23 @@ socket.on('vote result', ([name, url]) => {
   // 투표창 비활성화
   toggleVoteBtn('dead');
 });
+
+socket.on('game result', (result, mafiaName) => {
+  document.querySelector('.modal-title').innerHTML =
+    GAMESTATUS.CIVILWIN === result
+      ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
+      : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`;
+  document.querySelector('.modal-img').src =
+    GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
+  document.querySelector('.modal').classList.remove('hidden');
+});
+
+document.querySelector('.modal-close').onclick = () => {
+  document.querySelector('.modal').classList.add('hidden');
+  socket.emit('force disconnected');
+  alert('소켓 연결이 종료됩니다.');
+};
+
+document.querySelector('.modal-retry').onclick = () => {
+  window.location.href = '/';
+};
