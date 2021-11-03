@@ -10,8 +10,9 @@
 @include respond-above(md) {
   .main {
     @include basicStyle(0);
-    @include boxSizeMax(1200px);
+    @include boxSizeMax(1000px);
     min-width: rem(790px);
+    width: 100%;
   }
 }
 

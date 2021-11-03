@@ -6,6 +6,7 @@
   .info {
     &__container {
       width: 49%;
+      height: 80vh;
       @include flexbox($justify-content: space-around, $direction: column);
     }
     &__profile {
@@ -158,8 +159,6 @@
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
       min-height: rem(260px);
-
-      // overflow: scroll;
     }
 
     legend {
@@ -173,7 +172,7 @@
       flex-flow: column;
       justify-content: center;
       align-items: center;
-      min-height: 100px;
+      min-height: rem(120px);
     }
 
     input {
