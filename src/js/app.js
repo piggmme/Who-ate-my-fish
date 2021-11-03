@@ -170,17 +170,17 @@ const toggleVoteBtn = status => {
 };
 
 const sendVoteResult = () => {
-  if (document.querySelector('.infousers > button').disabled === true) return;
+  if (document.querySelector('.info__users > button').disabled === true) return;
 
   const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
     child => child.children[0].checked
   );
 
   if (checked.length <= 0) {
-    socket.emit('vote', null);
+    gameInfo.state === 'day' ? socket.emit('day vote', null) : socket.emit('night vote', null);
   } else {
     const selected = checked[0].children[2].textContent;
-    socket.emit('vote', selected);
+    gameInfo.state === 'day' ? socket.emit('day vote', selected) : socket.emit('night vote', selected);
   }
 };
 
@@ -238,6 +238,9 @@ socket.on('fullRoom', () => {
 // 투표 기능
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
+
+  const audio = new Audio('./sound/mouse-click.mp3');
+  audio.play();
 
   sendVoteResult();
   toggleVoteDisable(false);
