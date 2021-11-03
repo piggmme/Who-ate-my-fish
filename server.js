@@ -122,9 +122,7 @@ const gameInfo = (() => {
     getSecretCode() {
       return secretCode;
     },
-    getvoteStatus() {
-      return voteStatus;
-    },
+
     setCitizens(citizensArray) {
       citizens = [...citizensArray];
     },
@@ -159,7 +157,8 @@ io.on('connection', socket => {
     if (user.getCurrentUser().length === 5) {
       gameInfo.setCitizens(user.getCurrentUser());
       gameInfo.setMafia(getRandomNumber(CATSNUMBER));
-      io.emit('change gameState', GAMESTAGE.BEGINNING);
+
+      io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, 1);
 
       setTimeout(() => {
         gameInfo.getCitizens().forEach(civil => {
@@ -245,6 +244,7 @@ io.on('connection', socket => {
   socket.on('night vote', selected => {
     if (selected) {
       io.emit('vote result', catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0]);
+      io.emit('change gameState', 'day');
     }
   });
 });
