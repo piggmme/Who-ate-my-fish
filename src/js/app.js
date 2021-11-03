@@ -87,6 +87,8 @@ const gameInfo = {
   state: 'pending',
   totalUsers: [],
   jailUsers: [],
+  civilUserNum: 0,
+  mafiaNum: 0,
   interval: null,
   lap: 0,
   isSelectBtn: false,
@@ -183,6 +185,8 @@ const changeInfoGameStatus = status => {
 
 // 선택 완료 버튼 상황에 따라서
 const controlButtonVisibility = toVisible => {
+  if (gameInfo.state === 'beginning' || gameInfo.state === 'pending') return;
+  if (gameInfo.state === 'night' && player.isCitizen) return;
   document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
 };
 
@@ -251,7 +255,7 @@ const startTimer = status => {
   gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
-socket.on('change gameState', status => {
+socket.on('change gameState', (status, civilUser, mafiaUser) => {
   if (gameInfo.state === status) return;
 
   gameInfo.isSelectBtn = false;
@@ -263,6 +267,16 @@ socket.on('change gameState', status => {
 
   gameInfo.state = status;
   gameInfo.lap = 0;
+
+  // 현재 시민 수 구하기
+  if (civilUser !== undefined && mafiaUser !== undefined) {
+    gameInfo.civilUserNum = civilUser;
+    gameInfo.mafiaNum = mafiaUser;
+  }
+
+  document.querySelector('.info__users > fieldset > legend').textContent = `시민 ${
+    gameInfo.civilUserNum - gameInfo.jailUsers.length
+  } / 마피아 ${gameInfo.mafiaNum}`;
 
   startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);
