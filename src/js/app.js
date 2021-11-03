@@ -34,7 +34,14 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
   $chatContainer.scrollTop = $chatList.scrollHeight;
 });
 
-// ------------------------------------------------- //
+// http통신 예제
+// const fetchTodo = async () => {
+//   const ho = await axios.get('http://localhost:3000');
+//   console.log(ho);
+// };
+
+// fetchTodo();
+// axios.get('http://localhost:3000').then(resolve => console.log(resolve));
 
 // 단위 (ms)
 const STAGETIME = {
@@ -124,25 +131,23 @@ socket.on('get mafia-code', (code, bool) => {
 // night/citizen -> '시민은 밤에 활동할 수 없습니다.'
 // night/mafia -> '감옥에 가둘 고양이를 선택하세요.'
 
-const changeInfoColorMode = () => {
+const changeInfoColorMode = status => {
   const $infoContainer = document.querySelector('.info__container');
-  $infoContainer.classList.replace($infoContainer.classList[1], gameInfo.state);
+  $infoContainer.classList.replace($infoContainer.classList[1], status);
 };
 
-const changeInfoImage = () => {
+const changeInfoImage = status => {
   document.querySelectorAll('.info__header > img').forEach($img => {
-    $img.classList.contains('info__img-' + gameInfo.state)
-      ? $img.removeAttribute('hidden')
-      : $img.setAttribute('hidden', '');
+    $img.classList.contains('info__img-' + status) ? $img.removeAttribute('hidden') : $img.setAttribute('hidden', '');
   });
 };
 
-const changeInfoGameStatus = () => {
+const changeInfoGameStatus = status => {
   const $infoGameStatus = document.querySelector('.info__game-status');
   $infoGameStatus.innerHTML =
-    gameInfo.state === 'pending' || gameInfo.state === 'beginning'
+    status === 'pending' || status === 'beginning'
       ? '곧 게임이 시작됩니다.'
-      : gameInfo.state === 'day'
+      : status === 'day'
       ? '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
       : player.isCitizen
       ? '시민은 밤에 활동할 수 없습니다.'
@@ -164,8 +169,22 @@ const toggleVoteBtn = status => {
   toggleVoteDisable(status === 'pending' || status === 'dead' ? true : status === 'day' ? false : !player.isCitizen);
 };
 
+const sendVoteResult = () => {
+  if (document.querySelector('.infousers > button').disabled === true) return;
+
+  const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
+    child => child.children[0].checked
+  );
+
+  if (checked.length <= 0) {
+    socket.emit('vote', null);
+  } else {
+    const selected = checked[0].children[2].textContent;
+    socket.emit('vote', selected);
+  }
+};
+
 let interval = null;
-// let isPause = false;
 let lap = 0;
 
 const setTime = status => {
@@ -179,6 +198,7 @@ const setTime = status => {
   }`;
 
   if (miliseconds <= 0) {
+    sendVoteResult();
     clearInterval(interval);
   }
 };
@@ -193,7 +213,6 @@ socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
   gameInfo.state = status;
-  console.log(gameInfo.state);
   lap = 0;
   // 타이머 변경 이벤트
   startTimer(gameInfo.state);
@@ -202,13 +221,13 @@ socket.on('change gameState', status => {
   toggleVoteBtn(gameInfo.state);
 
   // 인포 배경색 변경
-  changeInfoColorMode();
+  changeInfoColorMode(gameInfo.state);
 
   // 인포 이미지 변경
-  changeInfoImage();
+  changeInfoImage(gameInfo.state);
 
   // 인포 메시지 변경
-  changeInfoGameStatus();
+  changeInfoGameStatus(gameInfo.state);
 });
 
 socket.on('fullRoom', () => {
@@ -219,14 +238,9 @@ socket.on('fullRoom', () => {
 // 투표 기능
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
-  const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
-    child => child.children[0].checked
-  );
 
-  if (checked.length <= 0) return;
-
-  const selected = checked[0].children[2].textContent;
-  socket.emit('dayVote', selected);
+  sendVoteResult();
+  toggleVoteDisable(false);
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //

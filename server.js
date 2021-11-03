@@ -179,10 +179,6 @@ io.on('connection', socket => {
   });
 
   io.emit('currentUsers', user.getCurrentUser());
-
-  // 투표 결과가 다 지난 후
-  // io.emit('vote result', [true, true, '네로']);
-  // io.emit('game result', 1, '네로');
 });
 
 server.listen(3000, () => {
