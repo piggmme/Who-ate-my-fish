@@ -6,14 +6,6 @@ const socket = io('http://localhost:3000');
 
 // ----------------- sound ----------------------- //
 
-// import axios from 'axios';
-import io from 'socket.io-client';
-import chatInit from './chat';
-
-const socket = io('http://localhost:3000');
-
-// ----------------- sound ----------------------- //
-
 const sound = (() => {
   const SOUND = {
     pending: './sound/pending.mp3',
@@ -252,7 +244,7 @@ const setTime = status => {
   }`;
 
   if (miliseconds <= 0) clearInterval(gameInfo.interval);
-  if (miliseconds <= 0) clearInterval(interval);
+  if (miliseconds <= 0) clearInterval(gameInfo.interval);
   if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
 };
 
