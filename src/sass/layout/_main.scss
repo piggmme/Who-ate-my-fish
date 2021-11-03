@@ -48,6 +48,23 @@ body {
   }
 }
 
+.music-button {
+  cursor: pointer;
+  width: rem(50px);
+  height: rem(50px);
+
+  @include respond-above(md) {
+    position: absolute;
+    right: 15%;
+    top: 2%;
+    // margin-left: rem(40px);
+  }
+
+  @include respond-below(md) {
+    margin-left: rem(40px);
+  }
+}
+
 .hidden {
   display: none;
 }

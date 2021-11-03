@@ -5,7 +5,6 @@ import chatInit from './chat';
 const socket = io('http://localhost:3000');
 
 // -----------------채팅 영역----------------------- //
-
 chatInit();
 
 document.querySelector('.chat-form').addEventListener('submit', e => {
@@ -243,7 +242,7 @@ document.querySelector('.info__users > button').onclick = e => {
   audio.play();
 
   sendVoteResult();
-  toggleVoteDisable(false);
+  toggleVoteDisable(true);
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
@@ -300,4 +299,14 @@ document.querySelector('.modal-close').onclick = () => {
 
 document.querySelector('.modal-retry').onclick = () => {
   window.location.href = '/';
+};
+
+document.querySelector('.music-button').onclick = e => {
+  if (e.target.alt === '음악 중지') {
+    e.target.src = './images/play.png';
+    e.target.alt = '음악 듣기';
+  } else {
+    e.target.src = './images/stop.png';
+    e.target.alt = '음악 중지';
+  }
 };
