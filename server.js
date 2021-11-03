@@ -216,10 +216,6 @@ io.on('connection', socket => {
   //     flag = true;
   //   }
   // });
-
-  // socket.on('nightVote', name => {
-  //   console.log(name);
-  // });
 });
 
 server.listen(3000, () => {
