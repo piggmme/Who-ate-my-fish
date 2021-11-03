@@ -8,21 +8,19 @@ const socket = io('http://localhost:3000');
 
 const sound = (() => {
   const SOUND = {
-    pending: './sound/pending.mp3',
-    beginning: './sound/pending.mp3',
-    day: './sound/day.mp3',
-    night: './sound/night.mp3',
-    voteFin: './sound/voteFin.mp3',
-    voteUser: './sound/voteUser.m4a',
+    pending: new Audio('./sound/pending.mp3'),
+    beginning: new Audio('./sound/pending.mp3'),
+    day: new Audio('./sound/day.mp3'),
+    night: new Audio('./sound/night.mp3'),
+    voteFin: new Audio('./sound/voteFin.mp3'),
+    voteUser: new Audio('./sound/voteUser.m4a'),
   };
-  let curSound = new Audio();
   return {
     play(state) {
-      curSound = new Audio(SOUND[state]);
-      curSound.play();
+      SOUND[state].play();
     },
     pause() {
-      curSound.pause();
+      Object.keys(SOUND).forEach(state => SOUND[state].pause());
     },
   };
 })();
@@ -258,7 +256,11 @@ socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
   gameInfo.isSelectBtn = false;
-  sound.play(status);
+
+  if (document.querySelector('.music-button').alt === '음악 듣기') {
+    sound.pause();
+    sound.play(status);
+  }
 
   gameInfo.state = status;
   gameInfo.lap = 0;
