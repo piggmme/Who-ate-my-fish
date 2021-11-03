@@ -166,7 +166,7 @@ io.on('connection', socket => {
 
         io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '', false);
         io.emit('change gameState', GAMESTAGE.DAY);
-      }, 6000);
+      }, 4000);
     }
 
     io.to(socket.id).emit('user update', catInfo);
@@ -210,7 +210,6 @@ io.on('connection', socket => {
       voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length &&
       voteStatus.some(result => result)
     ) {
-      // console.log(voteStatus);
       const voteCounts = new Map();
 
       voteStatus.forEach(result => voteCounts.set(result, voteCounts.get(result) + 1 || 1));
