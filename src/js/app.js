@@ -257,6 +257,11 @@ socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
   gameInfo.isSelectBtn = false;
+
+  if (document.querySelector('.music-button').alt === '음악 듣기') {
+    sound.pause();
+    sound.play(status);
+  }
   // sound.play(status);
 
   gameInfo.state = status;
