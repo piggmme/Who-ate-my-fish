@@ -47,7 +47,7 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 const STAGETIME = {
   pending: 0,
   beginning: 3000,
-  day: 180000,
+  day: 100000,
   night: 60000,
 };
 
@@ -210,7 +210,7 @@ window.addEventListener('DOMContentLoaded', () => {
   toggleVoteDisable(true);
 });
 
-const setTimeNmode = status => {
+const setTime = status => {
   const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
   const minutes = Math.floor(miliseconds / 1000 / 60);
   const seconds = Math.ceil((miliseconds / 1000) % 60);
@@ -220,25 +220,14 @@ const setTimeNmode = status => {
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) {
-    clearInterval(gameInfo.interval);
-    sendVoteResult();
-  }
-
-  // 인포 배경색 변경
-  changeInfoColorMode(gameInfo.state);
-
-  // 인포 이미지 변경
-  changeInfoImage(gameInfo.state);
-
-  // 인포 메시지 변경
-  changeInfoGameStatus(gameInfo.state);
+  if (miliseconds <= 0) clearInterval(gameInfo.interval);
+  if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
 };
 
 const startTimer = status => {
   clearInterval(gameInfo.interval);
   document.querySelector('.timer').textContent = '00:00';
-  gameInfo.interval = setInterval(setTimeNmode, 1000, status, gameInfo.lap);
+  gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
 socket.on('change gameState', status => {
@@ -250,6 +239,15 @@ socket.on('change gameState', status => {
 
   startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);
+
+  // 인포 배경색 변경
+  changeInfoColorMode(gameInfo.state);
+
+  // 인포 이미지 변경
+  changeInfoImage(gameInfo.state);
+
+  // 인포 메시지 변경
+  changeInfoGameStatus(gameInfo.state);
 });
 
 socket.on('fullRoom', () => {
