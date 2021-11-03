@@ -179,6 +179,62 @@ io.on('connection', socket => {
   });
 
   io.emit('currentUsers', user.getCurrentUser());
+
+  const voteStatus = [];
+
+  const getMaxNum = nums => nums.reduce((acc, curr) => Math.max(acc, curr), nums[0]);
+
+  // 각 클라이언트가 선택한 고양이 이름 받기.
+  socket.on('day vote', selected => {
+    voteStatus.push(selected);
+    console.log('!!');
+
+    // if (
+    //   voteStatus.length === user.currentUser().length - gameInfo.getJailCat().length &&
+    //   voteStatus.every(result => !result)
+    // ) {
+    //   io.emit('vote result', 'draw');
+    // }
+
+    if (
+      voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length &&
+      voteStatus.some(result => result)
+    ) {
+      const voteCounts = new Map();
+
+      voteStatus.forEach(result => voteCounts.set(result, voteCounts.get(result) + 1 || 1));
+
+      const maxVote = getMaxNum([...voteCounts.values()]);
+
+      const isDraw = [...voteCounts.values()].filter(voteCount => voteCount === maxVote).length > 1;
+
+      const mostVoted = isDraw ? null : [...voteCounts.keys()].filter(name => voteCounts.get(name) === maxVote)[0];
+
+      const voteResult = [
+        mostVoted,
+        isDraw ? null : catsData.getCatsInfo().filter(catInfo => catInfo[0] === mostVoted)[0][1],
+      ];
+
+      console.log(voteResult);
+      io.emit('vote result', voteResult);
+
+      // // 무효표가 아니면 특정 이름을 보내고 아니면 무효 보냄
+      // if (flag) {
+      //   socket.emit('dayVote result', jailCat);
+      // } else {
+      //   socket.emit('dayVote result', '');
+      // }
+
+      // voteResult = [];
+      // jailCat = '';
+      // maxVal = 0;
+      // flag = true;
+    }
+  });
+
+  socket.on('night vote', selected => {
+    console.log(selected);
+  });
 });
 
 server.listen(3000, () => {

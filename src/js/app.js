@@ -231,7 +231,7 @@ socket.on('change gameState', status => {
 });
 
 socket.on('fullRoom', () => {
-  alert('방이 다 찼습니다');
+  alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
 });
 
