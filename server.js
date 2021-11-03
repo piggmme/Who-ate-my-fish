@@ -122,9 +122,6 @@ const gameInfo = (() => {
     getSecretCode() {
       return secretCode;
     },
-    getvoteStatus() {
-      return voteStatus;
-    },
     setCitizens(citizensArray) {
       citizens = [...citizensArray];
     },
