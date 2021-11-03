@@ -7,6 +7,11 @@
     &__container {
       width: 49%;
     }
+    &__profile {
+      img {
+        width: 80%;
+      }
+    }
   }
 }
 
@@ -15,6 +20,13 @@
   .info {
     &__container {
       width: 100%;
+      height: 80vh;
+    }
+    &__profile {
+      img {
+        min-width: rem(80px);
+        max-width: rem(100px);
+      }
     }
   }
 }
@@ -25,7 +37,7 @@
     @include basicStyle;
     @include flexbox($justify-content: space-around, $direction: column);
 
-    height: 75vh;
+    // height: 75vh;
 
     background-color: $day-background-color;
     padding: 2%;
@@ -88,7 +100,7 @@
 
     img {
       @include autoMargin();
-      width: 60%;
+      // width: 80%;
 
       display: block;
     }
@@ -101,6 +113,7 @@
     display: block;
     padding: rem(20px) 0 rem(10px);
     font-size: rem(20px);
+    text-align: center;
   }
 
   &__message {
@@ -144,7 +157,9 @@
       grid-template-columns: repeat(3, auto);
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
-      height: 250px;
+      min-height: rem(260px);
+
+      // overflow: scroll;
     }
 
     legend {
@@ -175,7 +190,8 @@
     }
 
     img {
-      width: 50%;
+      // width: 50%;
+      max-width: rem(80px);
       border: 0;
     }
 
