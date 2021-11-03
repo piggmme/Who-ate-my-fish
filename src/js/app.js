@@ -244,8 +244,7 @@ const setTime = status => {
   }`;
 
   if (miliseconds <= 0) clearInterval(gameInfo.interval);
-  if (miliseconds <= 0) clearInterval(gameInfo.interval);
-  if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
+  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) sendVoteResult();
 };
 
 const startTimer = status => {
