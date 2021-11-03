@@ -243,7 +243,7 @@ document.querySelector('.info__users > button').onclick = e => {
   audio.play();
 
   sendVoteResult();
-  toggleVoteDisable(false);
+  toggleVoteDisable(true);
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
