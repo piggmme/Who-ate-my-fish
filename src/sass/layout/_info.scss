@@ -143,6 +143,7 @@
       font-size: rem(30px);
       text-align: center;
       line-height: rem(70px);
+      color: black;
     }
   }
 
@@ -159,6 +160,7 @@
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
       min-height: rem(260px);
+      color: $black;
     }
 
     legend {
