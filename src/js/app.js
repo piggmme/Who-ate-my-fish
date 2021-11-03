@@ -221,7 +221,7 @@ const setTime = status => {
   }`;
 
   if (miliseconds <= 0) clearInterval(interval);
-  if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
+  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) sendVoteResult();
 };
 
 const startTimer = status => {
@@ -299,7 +299,7 @@ const handleJailCatInInfoUsers = (name, url) => {
 // 감옥 고양이 비활성화 처리
 socket.on('vote result', result => {
   // 감옥간 고양이 없다면 종료
-  if (!result) return;
+  if (!result[0]) return;
 
   const [name, url] = result;
   // 감옥 고양이 렌더, 투표시 선택 못하게 표시
