@@ -9,6 +9,7 @@
 // 데스크탑
 @include respond-above(md) {
   .main {
+    @include basicStyle(0);
     @include boxSizeMax(1200px);
     min-width: rem(790px);
   }
@@ -21,7 +22,9 @@
   }
   .main {
     @include boxSizeMax(600px);
+    @include basicStyle(10px);
     max-width: rem(530px);
+    box-sizing: border-box;
     width: 100%;
   }
 }
@@ -55,7 +58,6 @@ body {
 }
 
 .main {
-  @include basicStyle(0);
   @include flexbox($justify-content: space-between, $flex-wrap: wrap);
   position: relative;
   line-height: 1.4;

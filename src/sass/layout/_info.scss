@@ -6,6 +6,7 @@
   .info {
     &__container {
       width: 49%;
+      @include flexbox($justify-content: space-around, $direction: column);
     }
     &__profile {
       img {
@@ -20,7 +21,8 @@
   .info {
     &__container {
       width: 100%;
-      height: 80vh;
+      height: 70vh;
+      @include flexbox($justify-content: center, $direction: column);
     }
     &__profile {
       img {
@@ -35,7 +37,6 @@
   &__container {
     @include boxShadow;
     @include basicStyle;
-    @include flexbox($justify-content: space-around, $direction: column);
 
     // height: 75vh;
 
@@ -111,7 +112,6 @@
   }
   &__game-status {
     display: block;
-    padding: rem(20px) 0 rem(10px);
     font-size: rem(20px);
     text-align: center;
   }
