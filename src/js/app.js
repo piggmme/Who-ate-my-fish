@@ -6,8 +6,17 @@ const socket = io('http://localhost:3000');
 
 // ----------------- sound ----------------------- //
 
+// import axios from 'axios';
+import io from 'socket.io-client';
+import chatInit from './chat';
+
+const socket = io('http://localhost:3000');
+
+// ----------------- sound ----------------------- //
+
 const sound = (() => {
   const SOUND = {
+    pending: './sound/pending.mp3',
     beginning: './sound/pending.mp3',
     day: './sound/day.mp3',
     night: './sound/night.mp3',
@@ -27,7 +36,6 @@ const sound = (() => {
 })();
 
 // -----------------채팅 영역----------------------- //
-
 chatInit();
 
 document.querySelector('.chat-form').addEventListener('submit', e => {
@@ -244,6 +252,7 @@ const setTime = status => {
   }`;
 
   if (miliseconds <= 0) clearInterval(gameInfo.interval);
+  if (miliseconds <= 0) clearInterval(interval);
   if (gameInfo.state === 'day' || gameInfo.state === 'night') sendVoteResult();
 };
 
@@ -256,12 +265,9 @@ const startTimer = status => {
 socket.on('change gameState', status => {
   if (gameInfo.state === status) return;
 
-<<<<<<< HEAD
   gameInfo.isSelectBtn = false;
-=======
   sound.play(status);
 
->>>>>>> d9fb0c07b8375a1da4fb848a9989c510688c280f
   gameInfo.state = status;
   gameInfo.lap = 0;
 
@@ -295,11 +301,9 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sendVoteResult();
   toggleVoteDisable(true);
-<<<<<<< HEAD
 
   gameInfo.isSelectBtn = true;
   controlButtonVisibility(true);
-=======
 };
 
 // ------------------- 소리 영역 ----------------------- //
@@ -314,7 +318,6 @@ document.querySelector('.info__users > fieldset').onclick = e => {
   if (!e.target.closest('label') || gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
   if (e.target.closest('label').querySelector('input').disabled === true) return;
   sound.play('voteUser');
->>>>>>> d9fb0c07b8375a1da4fb848a9989c510688c280f
 };
 
 // ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
@@ -379,4 +382,16 @@ document.querySelector('.modal-close').onclick = () => {
 
 document.querySelector('.modal-retry').onclick = () => {
   window.location.href = '/';
+};
+
+document.querySelector('.music-button').onclick = e => {
+  if (e.target.alt === '음악 중지') {
+    sound.play(gameInfo.state);
+    e.target.src = './images/play.png';
+    e.target.alt = '음악 듣기';
+  } else {
+    sound.pause();
+    e.target.src = './images/stop.png';
+    e.target.alt = '음악 중지';
+  }
 };
