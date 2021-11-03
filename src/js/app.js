@@ -34,8 +34,6 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
   $chatContainer.scrollTop = $chatList.scrollHeight;
 });
 
-// ------------------------------------------------- //
-
 // http통신 예제
 // const fetchTodo = async () => {
 //   const ho = await axios.get('http://localhost:3000');
@@ -53,13 +51,19 @@ const STAGETIME = {
   night: 60000,
 };
 
+const GAMESTATUS = {
+  CIVILWIN: 0,
+  MAFIAWIN: 1,
+  CONTINUE: 2,
+};
+
 // ---------------------- pending ---------------------------
 // vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
 // [{name : "네로", img_url: "/src/img-1.png" }]
 let currentUsers = [];
 let currentState = 'pending';
 let isCitizen = true;
-const jailUsers = [];
+// const jailUsers = [];
 
 const renderUsers = () => {
   const $filedset = document.querySelector('.info__users > fieldset');
