@@ -9,17 +9,23 @@
 // 데스크탑
 @include respond-above(md) {
   .main {
-    @include boxSizeMax(1200px);
+    @include basicStyle(0);
+    @include boxSizeMax(1000px);
+    min-width: rem(790px);
+    width: 100%;
   }
 }
 
 // 모바일
 @include respond-below(md) {
   html {
-    font-size: rem(14px);
+    font-size: rem(13px);
   }
   .main {
     @include boxSizeMax(600px);
+    @include basicStyle(10px);
+    max-width: rem(530px);
+    box-sizing: border-box;
     width: 100%;
   }
 }
@@ -53,9 +59,9 @@ body {
 }
 
 .main {
-  @include basicStyle;
   @include flexbox($justify-content: space-between, $flex-wrap: wrap);
   position: relative;
+  line-height: 1.4;
 }
 .info {
   &__time {

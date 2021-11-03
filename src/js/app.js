@@ -95,7 +95,6 @@ socket.on('user disconnect', user => {
 
 socket.on('get secret-code', (secretCode, bool) => {
   document.querySelector('.info__message-content').textContent = secretCode;
-  console.log('citizen');
 
   // 자신이 시민인지 확인
   isCitizen = bool;
@@ -103,7 +102,6 @@ socket.on('get secret-code', (secretCode, bool) => {
 
 socket.on('get mafia-code', (code, bool) => {
   document.querySelector('.info__message-content').textContent = code;
-  console.log('mafia');
 
   // 자신이 마피아인지 확인
   isCitizen = bool;
@@ -210,6 +208,7 @@ const toggleVoteBtn = status => {
 socket.on('change gameState', status => {
   if (currentState === status) return;
   currentState = status;
+  console.log(currentState);
   lap = 0;
 
   // 타이머 변경 이벤트
@@ -228,21 +227,27 @@ socket.on('change gameState', status => {
   toggleVoteBtn(currentState);
 });
 
+socket.on('fullRoom', () => {
+  alert('방이 다 찼습니다');
+  socket.emit('force disconnected');
+});
+
 // 투표 기능
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
-  //   console.log([...document.querySelector('.info__users > fieldset').children].map(child => child));
   const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
     child => child.children[0].checked
   );
 
   if (checked.length <= 0) return;
 
-  //   console.log('selected');
   const selected = checked[0].children[2].textContent;
   socket.emit('dayVote', selected);
+<<<<<<< HEAD
 
   if (!isCitizen && currentState === 'night') {
     socket.emit('nightVote', selected);
   }
+=======
+>>>>>>> 877fa85715d301d10c3b528641059fc5e1845ec5
 };
