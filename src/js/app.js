@@ -68,7 +68,7 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
 // 단위 (ms)
 const STAGETIME = {
   pending: 0,
-  beginning: 5000,
+  beginning: 3000,
   day: 180000,
   night: 60000,
 };
@@ -189,7 +189,7 @@ const toggleVoteDisable = isDisable => {
 };
 
 const toggleVoteBtn = status => {
-  toggleVoteDisable(status === 'pending' || status === 'dead' ? true : status === 'day' ? false : !player.isCitizen);
+  toggleVoteDisable(status === 'pending' || status === 'dead' ? true : status === 'day' ? false : player.isCitizen);
 };
 
 const sendVoteResult = () => {
@@ -220,9 +220,9 @@ const setTime = status => {
     seconds < 10 ? '0' + seconds : seconds
   }`;
 
-  if (miliseconds <= 0) {
-    sendVoteResult();
+  if (miliseconds <= 0 && (gameInfo.state === 'day' || gameInfo.state === 'night')) {
     clearInterval(interval);
+    sendVoteResult();
   }
 };
 
@@ -256,7 +256,7 @@ socket.on('change gameState', status => {
 });
 
 socket.on('fullRoom', () => {
-  alert('방이 다 찼습니다');
+  alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
 });
 
@@ -311,11 +311,11 @@ socket.on('vote result', result => {
 
   // 나는 감옥에 가지 않았다면
   if (player.name !== name) {
-    alert(name + '은(는) 시민이였습니다!');
+    // alert(name + '은(는) 시민이였습니다!');
     return;
   }
 
-  alert(name + '당신은 감옥에 갖혔습니다. 더 이상 투표랑 채팅은 하실 수 없습니다.');
+  // alert(name + '당신은 감옥에 갖혔습니다. 더 이상 투표랑 채팅은 하실 수 없습니다.');
 
   player.isAlive = false;
 
@@ -330,6 +330,7 @@ socket.on('vote result', result => {
 });
 
 socket.on('game result', (result, mafiaName) => {
+  console.log('game over');
   document.querySelector('.modal-title').innerHTML =
     GAMESTATUS.CIVILWIN === result
       ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
