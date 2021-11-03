@@ -51,6 +51,12 @@ const STAGETIME = {
   night: 60000,
 };
 
+const GAMESTATUS = {
+  CIVILWIN: 0,
+  MAFIAWIN: 1,
+  CONTINUE: 2,
+};
+
 const player = {
   name: '',
   isAlive: true,
@@ -85,6 +91,7 @@ const renderUsers = () => {
 };
 
 socket.on('user update', ([name, url]) => {
+  player.name = name;
   document.querySelector('.info__profile-name').textContent = name;
   document.querySelector('.info__profile-img').setAttribute('src', url);
 });
@@ -146,15 +153,16 @@ const changeInfoGameStatus = status => {
       ? '시민은 밤에 활동할 수 없습니다.'
       : '감옥에 가둘 고양이를 선택하세요.';
 };
+
 const toggleVoteDisable = isDisable => {
-  [...document.querySelectorAll('.infousers > fieldset > label')]
+  [...document.querySelectorAll('.info__users > fieldset > label')]
     .map(child => child.children)
     .map(el => {
       el[0].disabled = isDisable;
       return el[0];
     });
   // 선택완료 버튼 비활성화
-  document.querySelector('.infousers > button').disabled = isDisable;
+  document.querySelector('.info__users > button').disabled = isDisable;
 };
 
 const toggleVoteBtn = status => {
@@ -233,4 +241,42 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sendVoteResult();
   toggleVoteDisable(false);
+};
+
+// ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
+
+// 죽은사람 비활성화 처리
+socket.on('vote result', ([name, url]) => {
+  if (player.name !== name) return;
+
+  player.isAlive = false;
+
+  // 입력창 비활성화
+  document.querySelector('.chat-form input').disabled = true;
+
+  // 감옥 고양이 처리
+  document.querySelector('.info__profile-img').setAttribute('src', url);
+
+  // 투표창 비활성화
+  toggleVoteBtn('dead');
+});
+
+socket.on('game result', (result, mafiaName) => {
+  document.querySelector('.modal-title').innerHTML =
+    GAMESTATUS.CIVILWIN === result
+      ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
+      : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`;
+  document.querySelector('.modal-img').src =
+    GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
+  document.querySelector('.modal').classList.remove('hidden');
+});
+
+document.querySelector('.modal-close').onclick = () => {
+  document.querySelector('.modal').classList.add('hidden');
+  socket.emit('force disconnected');
+  alert('소켓 연결이 종료됩니다.');
+};
+
+document.querySelector('.modal-retry').onclick = () => {
+  window.location.href = '/';
 };
