@@ -27,7 +27,7 @@ const sound = (() => {
   };
 })();
 
-// constant
+// ----------------- constant ----------------------- //
 const GAMESTAGE = {
   PENDING: 'pending',
   BEGINNING: 'beginning',
@@ -51,7 +51,7 @@ const GAMESTATUS = {
 
 const MAX_USER_NUM = 5;
 
-// state
+// ----------------- state ----------------------- //
 const player = (() => {
   let name = '';
   let isAlive = true;
@@ -243,10 +243,10 @@ const changeInfoGameStatus = status => {
 };
 
 // 선택 완료 버튼 상황에 따라서
-const controlButtonInvisibility = toInvisible => {
+const renderSelectionBtn = visible => {
   if (gameInfo.state === GAMESTAGE.BEGINNING || gameInfo.state === GAMESTAGE.PENDING) return;
   if (gameInfo.state === GAMESTAGE.NIGHT && player.isCitizen) return;
-  document.querySelector('.info__users > button').classList.toggle('hidden', toInvisible);
+  document.querySelector('.info__users > button').classList.toggle('hidden', !visible);
 };
 
 const removeInputChecked = () => {
@@ -265,7 +265,7 @@ const renderInfoSection = state => {
 
 document.querySelector('.info__users').onclick = e => {
   if (!e.target.closest('label') || e.target.closest('label').querySelector('input').disabled) return;
-  controlButtonInvisibility(false);
+  renderSelectionBtn(true);
 };
 
 // 투표 ------------------------
@@ -280,7 +280,7 @@ const toggleVoteDisable = isDisable => {
   document.querySelector('.info__users > button').disabled = isDisable;
 };
 
-const toggleVoteBtn = status => {
+const handleAvailableCandidatesBy = status => {
   toggleVoteDisable(status === GAMESTAGE.PENDING ? true : status === GAMESTAGE.DAY ? false : player.isCitizen);
 };
 
@@ -302,6 +302,14 @@ const sendVoteResult = () => {
 const toggleAllVotesAcitve = isActive => {
   if (gameInfo.state === GAMESTAGE.PENDING || gameInfo.state === GAMESTAGE.BEGINNING) return;
   document.querySelector('.deactive__users').classList.toggle('hidden', isActive);
+};
+
+const handleVoteAndChatActive = isActive => {
+  toggleAllVotesAcitve(isActive);
+  document.querySelector('.chat-form input').disabled = !isActive;
+  document.querySelector('.chat-form input').placeholder = isActive
+    ? '채팅을 입력하세요.'
+    : '채팅을 입력할 수 없습니다.';
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -350,15 +358,7 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   시민 ${gameInfo.civilUserNum - gameInfo.jailUsers.length} / 마피아 ${gameInfo.mafiaNum}`;
 
   startTimer(gameInfo.state);
-  toggleVoteBtn(gameInfo.state);
-
-  const handleVoteAndChatActive = isActive => {
-    toggleAllVotesAcitve(isActive);
-    document.querySelector('.chat-form input').disabled = !isActive;
-    document.querySelector('.chat-form input').placeholder = isActive
-      ? '채팅을 입력하세요.'
-      : '채팅을 입력할 수 없습니다.';
-  };
+  handleAvailableCandidatesBy(gameInfo.state);
 
   if (gameInfo.state === GAMESTAGE.DAY) {
     handleVoteAndChatActive(player.isAlive);
@@ -373,8 +373,6 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 socket.on('fullRoom', () => {
   alert('방이 다 찼습니다.');
   socket.emit('force disconnected');
-  // 투표 비활성화 활성화 이벤트
-  //   toggleVoteBtn(currentState);
 });
 
 // 투표 기능
@@ -385,7 +383,7 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sendVoteResult();
   toggleAllVotesAcitve(false);
-  controlButtonInvisibility(true);
+  renderSelectionBtn(false);
 };
 
 // ------------------- 소리 영역 ----------------------- //
@@ -414,10 +412,9 @@ const handleJailCatInInfoUsers = (name, url) => {
   });
 };
 
-socket.on('vote result', result => {
-  if (result[0] === null) return;
+socket.on('vote result', ([name, url]) => {
+  if (name === null) return;
 
-  const [name, url] = result;
   handleJailCatInInfoUsers(name, url);
   gameInfo.jailUsers = [...gameInfo.jailUsers, name];
 
