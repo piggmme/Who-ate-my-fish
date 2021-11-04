@@ -61,7 +61,7 @@
   }
 }
 
-.other {
+.otherMessage {
   @include flexbox($align-items: flex-start);
   .full-chat {
     &__user-name {
@@ -77,7 +77,7 @@
   }
 }
 
-.me {
+.myMessage {
   @include flexbox($direction: row-reverse, $align-items: flex-start);
   position: relative;
   .full-chat {
