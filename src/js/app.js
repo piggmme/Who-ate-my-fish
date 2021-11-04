@@ -150,11 +150,11 @@ const closer = (() => {
     <legend>인원 ${gameInfo.totalUsers.length} / ${MAX_USER_NUM}</legend>
     ${gameInfo.totalUsers
       .map(
-        ([name, url], i) =>
+        ({ nickName, catImageUrl }, i) =>
           `<label>
               <input type="radio" id="user${i + 1}" name="user" disabled />
-              <img src="${url}" alt="플레이어 캐릭터" />
-              <span class="user-name">${name}</span>
+              <img src="${catImageUrl}" alt="플레이어 캐릭터" />
+              <span class="user-name">${nickName}</span>
           </label>
           `
       )
