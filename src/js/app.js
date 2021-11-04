@@ -309,6 +309,13 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 
   // 투표시 체크된 라벨을 해제해주기
   removeInputChecked();
+
+  if (!player.isAlive) {
+    // 입력창 비활성화
+    document.querySelector('.chat-form input').disabled = true;
+    // 투표창 비활성화
+    toggleVoteBtn('dead');
+  }
 });
 
 socket.on('fullRoom', () => {
