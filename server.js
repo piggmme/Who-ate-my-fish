@@ -6,10 +6,6 @@ const { Server } = require('socket.io');
 const secretCodeObject = require('./db/secretCode.json');
 
 let voteStatus = [];
-const GAMESTATUS = {
-  CIVILWIN: 0,
-  MAFIAWIN: 1,
-};
 
 /**
  * Create socket io and setting cors for accessing from different url
@@ -34,10 +30,21 @@ const GAMESTAGE = {
 };
 
 /**
+ * Constant object for indicating game status
+ * @constant
+ * @type {number}
+ */
+const GAMESTATUS = {
+  CIVILWIN: 0,
+  MAFIAWIN: 1,
+};
+
+/**
  * Constant number in catsInfo data
  * @type {number}
  */
 const CATSNUMBER = 5;
+const MAFIANUM = 1;
 
 /**
  * Get random number in the range of 0 ~ number-1
@@ -53,16 +60,11 @@ const getRandomNumber = number => Math.floor(Math.random() * number);
 const catsData = (() => {
   const ch = Array(5).fill(0);
   const catsInfo = [
-    ['오드아이', './images/cats/cat2.png'],
-    ['삼색이', './images/cats/cat3.png'],
-    ['샴', './images/cats/cat5.png'],
-    ['고등어', './images/cats/cat1.png'],
-    ['치즈', './images/cats/cat4.png'],
-    // ['오드아이', './images/cats/cat2.png', './images/cats/cat2_jail.png'],
-    // ['삼색이', './images/cats/cat3.png', './images/cats/cat3_jail.png'],
-    // ['샴', './images/cats/cat5.png', './images/cats/cat5_jail.png'],
-    // ['고등어', './images/cats/cat1.png', './images/cats/cat1_jail.png'],
-    // ['치즈', './images/cats/cat4.png', './images/cats/cat4_jail.png'],
+    ['오드아이', './images/cats/cat2.png', './images/cats/cat2_jail.png'],
+    ['삼색이', './images/cats/cat3.png', './images/cats/cat3_jail.png'],
+    ['샴', './images/cats/cat5.png', './images/cats/cat5_jail.png'],
+    ['고등어', './images/cats/cat1.png', './images/cats/cat1_jail.png'],
+    ['치즈', './images/cats/cat4.png', './images/cats/cat4_jail.png'],
   ];
 
   return {
@@ -71,6 +73,7 @@ const catsData = (() => {
       while (ch[idx] !== 0) {
         idx = getRandomNumber(CATSNUMBER);
       }
+      // console.log(ch);
       ch[idx] = 1;
       return catsInfo[idx];
     },
@@ -80,6 +83,9 @@ const catsData = (() => {
     getCheckArray() {
       return ch;
     },
+    initializeCatsCh() {
+      ch.fill(0);
+    },
   };
 })();
 
@@ -88,6 +94,7 @@ const catsData = (() => {
  * @returns {functions};
  */
 const user = (() => {
+  /** @type {Array[[nickName: string, url: string, sockeId: string]]} */
   let users = [];
 
   return {
@@ -105,7 +112,10 @@ const user = (() => {
         .map(el => el[0])
         .indexOf(catName);
       catsData.getCheckArray()[idx] = 0;
-      users = users.filter(user => user[2] !== id);
+      users = users.filter(user => user[3] !== id);
+    },
+    initializeUser() {
+      users = [];
     },
   };
 })();
@@ -133,7 +143,6 @@ const gameInfo = (() => {
     getSecretCode() {
       return secretCode;
     },
-
     setCitizens(citizensArray) {
       citizens = [...citizensArray];
     },
@@ -144,51 +153,59 @@ const gameInfo = (() => {
     setJailCat(newJailCat) {
       jailCat = [...jailCat, newJailCat];
     },
+    initializegameInfo() {
+      citizens = [];
+      mafia = [];
+      jailCat = [];
+    },
   };
 })();
+
+const gameReset = () => {
+  catsData.initializeCatsCh();
+  user.initializeUser();
+  gameInfo.initializegameInfo();
+};
 
 /**
  * Socket connect
  */
 io.on('connection', socket => {
-  let catInfo = '';
-  if (user.getCurrentUser().length < 5) {
-    catInfo = user.add(socket.id);
-  } else {
+  if (user.getCurrentUser().length >= 5) {
     io.to(socket.id).emit('fullRoom');
   }
+  console.log(catsData.getCheckArray());
 
-  if (catInfo) {
-    if (user.getCurrentUser().length === 5) {
-      gameInfo.setCitizens(user.getCurrentUser());
-      gameInfo.setMafia(getRandomNumber(CATSNUMBER));
+  const catInfo = user.add(socket.id);
 
-      io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, 1);
+  if (user.getCurrentUser().length === 5) {
+    gameInfo.setCitizens(user.getCurrentUser());
+    gameInfo.setMafia(getRandomNumber(CATSNUMBER));
 
-      setTimeout(() => {
-        gameInfo.getCitizens().forEach(civil => {
-          io.to(civil[2]).emit('get secret-code', gameInfo.getSecretCode(), true);
-        });
+    io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, MAFIANUM);
 
-        io.to(gameInfo.getMafia()[2]).emit('get mafia-code', '', false);
-        io.emit('change gameState', GAMESTAGE.DAY);
-      }, 6000);
-    }
+    setTimeout(() => {
+      gameInfo.getCitizens().forEach(civil => {
+        io.to(civil[3]).emit('get secret-code', gameInfo.getSecretCode(), true);
+      });
 
-    io.to(socket.id).emit('user update', catInfo);
-
-    // chat message이벤트가 발생한 경우
-    socket.on('chat message', msg => {
-      io.emit('chat message', [...catInfo, msg, socket.id]);
-    });
-
-    socket.on('disconnect', () => {
-      user.delete(socket.id, catInfo[0]);
-      io.emit('user disconnect', user.getCurrentUser());
-    });
-  } else {
-    console.log('user disconnected');
+      io.to(gameInfo.getMafia()[3]).emit('get mafia-code', '', false);
+      io.emit('change gameState', GAMESTAGE.DAY);
+    }, 4000);
   }
+
+  io.to(socket.id).emit('user update', catInfo);
+
+  // chat message이벤트가 발생한 경우
+  socket.on('chat message', msg => {
+    io.emit('chat message', [...catInfo, msg, socket.id]);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+    user.delete(socket.id, catInfo[0]);
+    io.emit('user disconnect', user.getCurrentUser());
+  });
 
   socket.on('force disconnected', () => {
     socket.disconnect(true);
@@ -217,38 +234,36 @@ io.on('connection', socket => {
 
       const voteResult = [
         mostVoted,
-        isDraw
-          ? null
-          : catsData
-              .getCatsInfo()
-              .filter(catInfo => catInfo[0] === mostVoted)[0][1]
-              .slice(0, -4) + '_jail.png',
+        isDraw ? null : catsData.getCatsInfo().filter(catInfo => catInfo[0] === mostVoted)[0][2],
       ];
 
       if (isDraw) {
         io.emit('change gameState', 'night');
       } else if (mostVoted === gameInfo.getMafia()[0]) {
         io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
+        gameReset();
       } else {
         io.emit('vote result', voteResult);
         gameInfo.setJailCat(mostVoted);
-        gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
-          ? io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0])
-          : io.emit('change gameState', 'night');
+        if (gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3) {
+          io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0]);
+          gameReset();
+        } else {
+          io.emit('change gameState', 'night');
+        }
+        // gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
+        //   ?
+        //   : io.emit('change gameState', 'night');
       }
+
+      voteStatus = [];
     }
   });
 
   socket.on('night vote', selected => {
     if (selected) {
-      io.emit(
-        'vote result',
-        selected,
-        catsData
-          .getCatsInfo()
-          .filter(catInfo => catInfo[0] === selected)[0][1]
-          .slice(0, -4) + '_jail.png'
-      );
+      gameInfo.setJailCat(selected);
+      io.emit('vote result', [selected, catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0][2]]);
       io.emit('change gameState', 'day');
     }
   });

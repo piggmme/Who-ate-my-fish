@@ -8,6 +8,7 @@
       width: 49%;
       height: 80vh;
       @include flexbox($justify-content: space-around, $direction: column);
+      overflow-y: auto;
     }
     &__profile {
       img {
@@ -150,7 +151,7 @@
   &__users {
     position: relative;
     padding-top: 30px;
-    overflow: scroll;
+    // overflow-y: auto;
 
     fieldset {
       background-color: $white;

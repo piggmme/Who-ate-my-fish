@@ -45,6 +45,8 @@ body {
     padding: 1%;
     font-size: rem(40px);
     font-family: 'Gaegu', cursive;
+    @include respond-below(md);
+    font-size: rem(35px);
   }
 }
 
@@ -92,6 +94,7 @@ body {
 }
 .info__container {
   width: 49%;
+  overflow: auto;
 }
 
 // 채팅 입력창 ---------------------------------------/
