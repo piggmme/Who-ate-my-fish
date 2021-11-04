@@ -162,7 +162,6 @@
       grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
       min-height: rem(260px);
-      color: $black;
     }
 
     legend {
@@ -177,6 +176,7 @@
       justify-content: center;
       align-items: center;
       min-height: rem(120px);
+      color: $black;
     }
 
     input {
