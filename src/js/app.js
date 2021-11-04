@@ -113,10 +113,11 @@ const renderUsers = () => {
             <input type="radio" id="user${i + 1}" name="user" disabled />
             <img src="${user[1]}" alt="플레이어 캐릭터" />
             <span class="user-name">${user[0]}</span>
-        </label>`
+        </label>
+        `
     )
     .join('')}
-  `;
+    <div class="deactive__users hidden" aria-hidden="true"></div>`;
 };
 
 socket.on('user update', ([name, url]) => {
@@ -212,6 +213,14 @@ const toggleVoteDisable = isDisable => {
   document.querySelector('.info__users > button').disabled = isDisable;
 };
 
+const disabledVoteNChat = isActive => {
+  if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
+
+  document.querySelector('.deactive__chat-list').classList.toggle('hidden', isActive);
+  document.querySelector('.deactive__users').classList.toggle('hidden', isActive);
+  document.querySelector('.deactive__char-form').classList.toggle('hidden', isActive);
+};
+
 const toggleVoteBtn = status => {
   toggleVoteDisable(status === 'pending' || status === 'dead' ? true : status === 'day' ? false : player.isCitizen);
 };
@@ -287,6 +296,7 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 
   startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);
+  disabledVoteNChat(true);
 
   // 인포 배경색 변경
   changeInfoColorMode(gameInfo.state);
@@ -318,6 +328,7 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sendVoteResult();
   toggleVoteDisable(true);
+  disabledVoteNChat(false);
 
   gameInfo.isSelectBtn = true;
   controlButtonVisibility(true);
