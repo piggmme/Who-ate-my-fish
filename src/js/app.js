@@ -367,11 +367,22 @@ socket.on('vote result', ([name, url]) => {
   document.querySelector('.info__profile-img').setAttribute('src', url);
 });
 
+// 한글 문자열이 받침 있는 글자로 끝나면 true, 아니면 false
+const isLastCharacterHasFinalConsonant = korStr => {
+  const LastCharCode = korStr.charCodeAt(korStr.length - 1);
+  const CHAR_CODE_OF_KOR_GA = 44032;
+  return LastCharCode % 28 !== CHAR_CODE_OF_KOR_GA % 28;
+};
+
 socket.on('game result', (result, mafiaName) => {
   document.querySelector('.modal-title').innerHTML =
     GAMESTATUS.CIVILWIN === result
-      ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
-      : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`;
+      ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName}${
+          isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
+        }습니다.`
+      : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName}${
+          isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
+        }습니다.`;
   document.querySelector('.modal-img').src =
     GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
   document.querySelector('.modal').classList.remove('hidden');
