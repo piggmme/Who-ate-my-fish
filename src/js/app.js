@@ -264,7 +264,7 @@ const renderInfoSection = state => {
 };
 
 document.querySelector('.info__users').onclick = e => {
-  if (!e.target.closest('label')) return;
+  if (!e.target.closest('label') || e.target.closest('label').querySelector('input').disabled) return;
   controlButtonInvisibility(false);
 };
 
