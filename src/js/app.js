@@ -313,8 +313,9 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   if (!player.isAlive) {
     // 입력창 비활성화
     document.querySelector('.chat-form input').disabled = true;
+
     // 투표창 비활성화
-    toggleVoteBtn('dead');
+    document.querySelector('.deactive__users').classList.remove('hidden');
   }
 });
 
