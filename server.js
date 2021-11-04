@@ -208,8 +208,6 @@ io.on('connection', socket => {
   socket.on('day vote', selected => {
     voteStatus = [...voteStatus, selected];
 
-    console.log('투표!', voteStatus, voteStatus.length, user.getCurrentUser().length - gameInfo.getJailCat().length);
-
     if (voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length) {
       const voteCounts = new Map();
 
@@ -228,8 +226,6 @@ io.on('connection', socket => {
         isDraw ? null : catsData.getCatsInfo().filter(catInfo => catInfo[0] === mostVoted)[0][2],
       ];
 
-      console.log(isDraw);
-
       if (!isDraw && mostVoted === gameInfo.getMafia()[0]) {
         io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
         gameReset();
@@ -239,10 +235,11 @@ io.on('connection', socket => {
         if (gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3) {
           io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0]);
           gameReset();
+        } else {
+          io.emit('change gameState', 'night');
         }
       } else {
         io.emit('change gameState', 'night');
-        console.log('동점이라궁');
       }
 
       // if (isDraw) {
