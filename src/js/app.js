@@ -86,7 +86,6 @@ const gameInfo = (() => {
   let mafiaNum = 0;
   let interval = null;
   let lap = 0;
-  let isSelectBtn = false;
   return {
     get state() {
       return state;
@@ -129,12 +128,6 @@ const gameInfo = (() => {
     },
     set lap(newLap) {
       lap = newLap;
-    },
-    get isSelectBtn() {
-      return isSelectBtn;
-    },
-    set isSelectBtn(newIsSelectBtn) {
-      isSelectBtn = newIsSelectBtn;
     },
   };
 })();
@@ -250,10 +243,10 @@ const changeInfoGameStatus = status => {
 };
 
 // 선택 완료 버튼 상황에 따라서
-const controlButtonVisibility = toVisible => {
+const controlButtonInvisibility = toInvisible => {
   if (gameInfo.state === GAMESTAGE.BEGINNING || gameInfo.state === GAMESTAGE.PENDING) return;
   if (gameInfo.state === GAMESTAGE.NIGHT && player.isCitizen) return;
-  document.querySelector('.info__users > button').classList.toggle('hidden', toVisible);
+  document.querySelector('.info__users > button').classList.toggle('hidden', toInvisible);
 };
 
 const removeInputChecked = () => {
@@ -272,12 +265,7 @@ const renderInfoSection = state => {
 
 document.querySelector('.info__users').onclick = e => {
   if (!e.target.closest('label')) return;
-
-  if (!gameInfo.isSelectBtn) {
-    controlButtonVisibility(false);
-  } else {
-    controlButtonVisibility(true);
-  }
+  controlButtonInvisibility(false);
 };
 
 // 투표 ------------------------
@@ -293,9 +281,7 @@ const toggleVoteDisable = isDisable => {
 };
 
 const toggleVoteBtn = status => {
-  toggleVoteDisable(
-    status === GAMESTAGE.PENDING || status === 'dead' ? true : status === GAMESTAGE.DAY ? false : player.isCitizen
-  );
+  toggleVoteDisable(status === GAMESTAGE.PENDING ? true : status === GAMESTAGE.DAY ? false : player.isCitizen);
 };
 
 const sendVoteResult = () => {
@@ -346,8 +332,6 @@ const startTimer = status => {
 socket.on('change gameState', (status, civilUser, mafiaUser) => {
   // if (gameInfo.state === status) return;
 
-  gameInfo.isSelectBtn = false;
-
   if (document.querySelector('.music-button').alt === '음악 듣기') {
     sound.pause();
     sound.play(status);
@@ -397,27 +381,24 @@ socket.on('fullRoom', () => {
 document.querySelector('.info__users > button').onclick = e => {
   e.preventDefault();
 
-  //   const audio = new Audio('./sound/voteFin.mp3');
-  //   audio.play();
   sound.play('voteFin');
 
   sendVoteResult();
-  toggleVoteDisable(true);
-
-  // 투표 기능 비활성화
   toggleAllVotesAcitve(false);
-
-  gameInfo.isSelectBtn = true;
-  controlButtonVisibility(true);
+  controlButtonInvisibility(true);
 };
 
 // ------------------- 소리 영역 ----------------------- //
 
 // 투표할 때 유저 프로필 클릭한 경우
 document.querySelector('.info__users > fieldset').onclick = e => {
-  if (!e.target.closest('label') || gameInfo.state === GAMESTAGE.PENDING || gameInfo.state === GAMESTAGE.BEGINNING)
+  if (
+    !e.target.closest('label') ||
+    e.target.closest('label').querySelector('input').disabled ||
+    gameInfo.state === GAMESTAGE.PENDING ||
+    gameInfo.state === GAMESTAGE.BEGINNING
+  )
     return;
-  if (e.target.closest('label').querySelector('input').disabled === true) return;
   sound.play('voteUser');
 };
 
@@ -433,40 +414,21 @@ const handleJailCatInInfoUsers = (name, url) => {
   });
 };
 
-// 감옥 고양이 비활성화 처리
 socket.on('vote result', result => {
-  // 감옥간 고양이 없다면 종료
   if (result[0] === null) return;
 
   const [name, url] = result;
-  // 감옥 고양이 렌더, 투표시 선택 못하게 표시
   handleJailCatInInfoUsers(name, url);
-  // 감옥 인원에 추가 => toggleVoteDisable 에서 처리할 예정임.
-  // gameInfo.jailUsers.push(name);
   gameInfo.jailUsers = [...gameInfo.jailUsers, name];
 
-  // 나는 감옥에 가지 않았다면
-  if (player.name !== name) {
-    // alert(name + '은(는) 시민이였습니다!');
-    return;
-  }
-
-  // alert(name + '당신은 감옥에 갖혔습니다. 더 이상 투표랑 채팅은 하실 수 없습니다.');
+  if (player.name !== name) return;
 
   player.isAlive = false;
-
-  // 입력창 비활성화
   document.querySelector('.chat-form input').disabled = true;
-
-  // 감옥 고양이 프로필 처리
   document.querySelector('.info__profile-img').setAttribute('src', url);
-
-  // 투표창 비활성화
-  toggleVoteBtn('dead');
 });
 
 socket.on('game result', (result, mafiaName) => {
-  console.log('game over');
   document.querySelector('.modal-title').innerHTML =
     GAMESTATUS.CIVILWIN === result
       ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName} 였습니다.`
