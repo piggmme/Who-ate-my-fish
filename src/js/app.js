@@ -183,7 +183,7 @@ const controlButtonVisibility = toVisible => {
 };
 
 document.querySelector('.info__users').onclick = e => {
-  if (!e.target.matches('img')) return;
+  if (!e.target.closest('label')) return;
 
   if (!gameInfo.isSelectBtn) {
     controlButtonVisibility(false);
