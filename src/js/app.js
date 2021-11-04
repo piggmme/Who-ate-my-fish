@@ -38,7 +38,7 @@ document.querySelector('.chat-form').addEventListener('submit', e => {
 });
 
 // chat message 이벤트를 받은 경우, li에 요소 추가
-socket.on('chat message', ([curUser, img, msg, id]) => {
+socket.on('chat message', ([curUser, img, , msg, id]) => {
   const $li = document.createElement('li');
   $li.className = `full-chat__item ${id === socket.id ? 'me' : 'other'}`;
   $li.innerHTML = `
