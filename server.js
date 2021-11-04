@@ -73,7 +73,6 @@ const catsData = (() => {
       while (ch[idx] !== 0) {
         idx = getRandomNumber(CATSNUMBER);
       }
-      // console.log(ch);
       ch[idx] = 1;
       return catsInfo[idx];
     },
@@ -175,7 +174,6 @@ io.on('connection', socket => {
   if (user.getCurrentUser().length >= 5) {
     io.to(socket.id).emit('fullRoom');
   }
-  console.log(catsData.getCheckArray());
 
   const catInfo = user.add(socket.id);
 
