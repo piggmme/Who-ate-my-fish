@@ -255,6 +255,13 @@ const startTimer = status => {
   gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
 };
 
+const removeInputChecked = () => {
+  const $labels = document.querySelectorAll('.info__users > fieldset label');
+  $labels.forEach($label => {
+    $label.querySelector('input').checked = false;
+  });
+};
+
 socket.on('change gameState', (status, civilUser, mafiaUser) => {
   if (gameInfo.state === status) return;
 
@@ -289,6 +296,9 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 
   // 인포 메시지 변경
   changeInfoGameStatus(gameInfo.state);
+
+  // 투표시 체크된 라벨을 해제해주기
+  removeInputChecked();
 });
 
 socket.on('fullRoom', () => {
