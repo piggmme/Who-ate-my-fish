@@ -198,6 +198,7 @@
       max-width: rem(80px);
       border: 0;
       cursor: pointer;
+      -webkit-user-drag: none;
     }
 
     &-name {
