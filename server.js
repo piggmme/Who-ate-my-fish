@@ -1,9 +1,7 @@
-const express = require('express');
-
-const app = express();
+const app = require('express')();
 const server = require('http').createServer(app);
 const { Server } = require('socket.io');
-const secretCodeObject = require('./db/secretCode.json');
+const secretCodes = require('./db/secretCode.json').word;
 
 /**
  * Create socket io and setting cors for accessing from different url
@@ -20,7 +18,7 @@ const io = new Server(server, {
  * @constant
  * @type {string}
  */
-const GAMESTAGE = {
+const GAME_STAGE = {
   PENDING: 'pending',
   BEGINNING: 'beginning',
   DAY: 'day',
@@ -160,7 +158,7 @@ const gameInfo = (() => {
       voteStatus = newVoteStatus;
     },
     setSecretCode(len) {
-      secretCode = secretCodeObject.word[getRandomNumber(len)];
+      secretCode = secretCodes[getRandomNumber(len)];
     },
     initializegameInfo() {
       citizens = [];
@@ -202,9 +200,9 @@ io.on('connection', socket => {
     // setCitizens, setMafia, setSecretCode를 gameSet으로 한번에 묶을 수 있음 (totalUser가 존재한다면)
     gameInfo.setCitizens(user.getCurrentUser());
     gameInfo.setMafia(getRandomNumber(CATSNUMBER));
-    gameInfo.setSecretCode(secretCodeObject.word.length);
+    gameInfo.setSecretCode(secretCodes.length);
 
-    io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, GAMESTATUS.MAFIANUM);
+    io.emit('change gameState', GAME_STAGE.BEGINNING, gameInfo.getCitizens().length, GAMESTATUS.MAFIANUM);
 
     setTimeout(() => {
       gameInfo.getCitizens().forEach(civil => {
@@ -212,7 +210,7 @@ io.on('connection', socket => {
       });
 
       io.to(gameInfo.getMafia()[3]).emit('get mafia-code', '', GAMESTATUS.MAFIA);
-      io.emit('change gameState', GAMESTAGE.DAY);
+      io.emit('change gameState', GAME_STAGE.DAY);
     }, 6000);
   }
 
@@ -249,10 +247,10 @@ io.on('connection', socket => {
           io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0]);
           gameReset();
         } else {
-          io.emit('change gameState', 'night');
+          io.emit('change gameState', GAME_STAGE.NIGHT);
         }
       } else {
-        io.emit('change gameState', 'night');
+        io.emit('change gameState', GAME_STAGE.NIGHT);
       }
 
       gameInfo.setVoteStatus([]);
@@ -264,7 +262,7 @@ io.on('connection', socket => {
       gameInfo.setJailCat(selected);
       io.emit('vote result', [selected, catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0][2]]);
     }
-    io.emit('change gameState', 'day');
+    io.emit('change gameState', GAME_STAGE.DAY);
   });
 
   socket.on('disconnect', () => {
