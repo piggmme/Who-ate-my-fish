@@ -127,7 +127,7 @@ const gameInfo = (() => {
   let citizens = [];
   let mafia = [];
   let jailCat = [];
-  const secretCode = secretCodeObject.word[getRandomNumber(secretCodeObject.word.length)];
+  let secretCode = '';
 
   return {
     getCitizens() {
@@ -152,6 +152,9 @@ const gameInfo = (() => {
     setJailCat(newJailCat) {
       jailCat = [...jailCat, newJailCat];
     },
+    setSecretCode(len) {
+      secretCode = secretCodeObject.word[getRandomNumber(len)];
+    },
     initializegameInfo() {
       citizens = [];
       mafia = [];
@@ -161,7 +164,6 @@ const gameInfo = (() => {
 })();
 
 const gameReset = () => {
-  console.log('gamerest');
   catsData.initializeCatsCh();
   user.initializeUser();
   gameInfo.initializegameInfo();
@@ -180,6 +182,7 @@ io.on('connection', socket => {
   if (user.getCurrentUser().length === 5) {
     gameInfo.setCitizens(user.getCurrentUser());
     gameInfo.setMafia(getRandomNumber(CATSNUMBER));
+    gameInfo.setSecretCode(secretCodeObject.word.length);
 
     io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, MAFIANUM);
 
@@ -190,7 +193,7 @@ io.on('connection', socket => {
 
       io.to(gameInfo.getMafia()[3]).emit('get mafia-code', '', false);
       io.emit('change gameState', GAMESTAGE.DAY);
-    }, 4000);
+    }, 6000);
   }
 
   io.to(socket.id).emit('user update', catInfo);
@@ -240,26 +243,6 @@ io.on('connection', socket => {
       } else {
         io.emit('change gameState', 'night');
       }
-
-      // if (isDraw) {
-      //   io.emit('change gameState', 'night');
-      // } else if (mostVoted === gameInfo.getMafia()[0]) {
-      //   io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
-      //   gameReset();
-      // } else {
-      //   io.emit('vote result', voteResult);
-      //   gameInfo.setJailCat(mostVoted);
-      //   if (gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3) {
-      //     io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0]);
-      //     gameReset();
-      //   } else {
-      //     io.emit('change gameState', 'night');
-      //   }
-
-      // gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
-      //   ?
-      //   : io.emit('change gameState', 'night');
-      // }
 
       voteStatus = [];
     }
