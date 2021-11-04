@@ -139,6 +139,48 @@ body {
   }
 }
 
+// 모달 ---------------------------------------/
+// 데스크탑
+@include respond-above(md) {
+  .modal {
+    &-window {
+      padding: 0 rem(20px);
+      width: 40%;
+      min-width: rem(500px);
+    }
+    &-title {
+      font-size: rem(30px);
+    }
+    &-img {
+      display: block;
+      margin: rem(20px);
+    }
+    &-retry {
+      font-size: rem(20px);
+    }
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  .modal {
+    &-window {
+      width: 80%;
+      max-width: rem(400px);
+    }
+    &-img {
+      width: 30%;
+      margin: rem(10px);
+    }
+    &-title {
+      font-size: rem(20px);
+    }
+    &-retry {
+      font-size: rem(20px);
+    }
+  }
+}
+
 .modal {
   position: absolute;
   @include flexbox($justify-content: center, $align-items: center);
@@ -151,48 +193,29 @@ body {
   align-items: center;
 
   &-window {
+    @include flexbox(row, $justify-content: space-around, $align-items: center, $flex-wrap: wrap);
     position: relative;
     background-color: white;
     border-radius: rem(10px);
-    width: 60%;
   }
 
   &-title {
     text-align: center;
     padding: 8%;
-    font-size: rem(40px);
     line-height: 1.2;
+    width: 100%;
   }
 
   &-retry {
     display: block;
-    @include autoMargin();
     background-color: $blue;
     color: $white;
-    font-size: rem(30px);
     font-weight: 400;
     padding: rem(10px) rem(30px);
     border-radius: 10px;
+    border-bottom-left-radius: 0;
     border: none;
     box-shadow: 0px rem(5px) 3px lightgray;
-  }
-
-  &-close {
-    position: absolute;
-    top: 2%;
-    right: 2%;
-    width: rem(25px);
-    font-size: rem(20px);
-    cursor: pointer;
-    background-color: $red;
-    border: none;
-    border-radius: 50%;
-  }
-
-  &-img {
-    display: block;
-    margin-top: rem(20px);
-    margin-left: rem(40px);
   }
 }
 

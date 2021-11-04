@@ -23,7 +23,7 @@
   .info {
     &__container {
       width: 100%;
-      height: 70vh;
+      height: 80vh;
       @include flexbox($justify-content: center, $direction: column);
     }
     &__profile {
