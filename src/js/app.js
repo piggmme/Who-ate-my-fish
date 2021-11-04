@@ -132,18 +132,152 @@ const gameInfo = (() => {
   };
 })();
 
-// -----------------채팅 영역----------------------- //
+// ----------------- fucntion ----------------------- //
+const closer = (() => {
+  const renderUsers = () => {
+    const $filedset = document.querySelector('.info__users > fieldset');
+    $filedset.innerHTML = `
+    <legend>인원 ${gameInfo.totalUsers.length} / ${MAX_USER_NUM}</legend>
+    ${gameInfo.totalUsers
+      .map(
+        ([name, url], i) =>
+          `<label>
+              <input type="radio" id="user${i + 1}" name="user" disabled />
+              <img src="${url}" alt="플레이어 캐릭터" />
+              <span class="user-name">${name}</span>
+          </label>
+          `
+      )
+      .join('')}
+      <div class="deactive__users hidden" aria-hidden="true"></div>`;
+  };
+  const changeInfoColorMode = status => {
+    const $infoContainer = document.querySelector('.info__container');
+    $infoContainer.classList.replace($infoContainer.classList[1], status);
+  };
 
-document.querySelector('.chat-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const $input = document.querySelector('.chat-form input');
-  $input.value = $input.value.trim();
-  if ($input.value) {
-    socket.emit('chat message', $input.value);
-    $input.value = '';
-  }
-});
+  const changeInfoImage = status => {
+    document.querySelectorAll('.info__header > img').forEach($img => {
+      $img.classList.contains('info__img-' + status) ? $img.removeAttribute('hidden') : $img.setAttribute('hidden', '');
+    });
+  };
 
+  const changeInfoGameStatus = status => {
+    const $infoGameStatus = document.querySelector('.info__game-status');
+    $infoGameStatus.innerHTML =
+      status === GAMESTAGE.PENDING || status === GAMESTAGE.BEGINNING
+        ? '곧 게임이 시작됩니다.'
+        : status === GAMESTAGE.DAY
+        ? '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
+        : player.isCitizen
+        ? '시민은 밤에 활동할 수 없습니다.'
+        : '감옥에 가둘 고양이를 선택하세요.';
+  };
+
+  const renderSelectionBtn = visible => {
+    if (gameInfo.state === GAMESTAGE.BEGINNING || gameInfo.state === GAMESTAGE.PENDING) return;
+    if (gameInfo.state === GAMESTAGE.NIGHT && player.isCitizen) return;
+    document.querySelector('.info__users > button').classList.toggle('hidden', !visible);
+  };
+
+  const removeInputChecked = () => {
+    const $labels = document.querySelectorAll('.info__users > fieldset label');
+    $labels.forEach($label => {
+      $label.querySelector('input').checked = false;
+    });
+  };
+
+  const renderInfoSection = state => {
+    changeInfoColorMode(state);
+    changeInfoImage(state);
+    changeInfoGameStatus(state);
+    removeInputChecked();
+  };
+  const toggleVoteDisable = isDisable => {
+    [...document.querySelectorAll('.info__users > fieldset > label')]
+      .map(child => child.children)
+      .map(el => {
+        el[0].disabled = gameInfo.jailUsers.includes(el[2].textContent) || isDisable;
+        return el[0];
+      });
+    document.querySelector('.info__users > button').disabled = isDisable;
+  };
+
+  const handleAvailableCandidatesBy = status => {
+    toggleVoteDisable(status === GAMESTAGE.PENDING ? true : status === GAMESTAGE.DAY ? false : player.isCitizen);
+  };
+
+  const sendVoteResult = () => {
+    if (document.querySelector('.info__users > button').disabled === true) return;
+
+    const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
+      child => child.children[0].checked
+    );
+
+    if (checked.length <= 0) {
+      gameInfo.state === GAMESTAGE.DAY ? socket.emit('day vote', null) : socket.emit('night vote', null);
+    } else {
+      const selected = checked[0].children[2].textContent;
+      gameInfo.state === GAMESTAGE.DAY ? socket.emit('day vote', selected) : socket.emit('night vote', selected);
+    }
+  };
+
+  const toggleAllVotesAcitve = isActive => {
+    if (gameInfo.state === GAMESTAGE.PENDING || gameInfo.state === GAMESTAGE.BEGINNING) return;
+    document.querySelector('.deactive__users').classList.toggle('hidden', isActive);
+  };
+
+  const handleVoteAndChatActive = isActive => {
+    toggleAllVotesAcitve(isActive);
+    document.querySelector('.chat-form input').disabled = !isActive;
+    document.querySelector('.chat-form input').placeholder = isActive
+      ? '채팅을 입력하세요.'
+      : '채팅을 입력할 수 없습니다.';
+  };
+  const setTime = status => {
+    const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
+    const minutes = Math.floor(miliseconds / 1000 / 60);
+    const seconds = Math.ceil((miliseconds / 1000) % 60);
+    gameInfo.lap += 1;
+
+    document.querySelector('.timer').textContent = `
+      ${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+    if (miliseconds <= 0) clearInterval(gameInfo.interval);
+    if (miliseconds <= 0 && (gameInfo.state === GAMESTAGE.DAY || gameInfo.state === GAMESTAGE.NIGHT)) sendVoteResult();
+  };
+
+  const startTimer = status => {
+    clearInterval(gameInfo.interval);
+    document.querySelector('.timer').textContent = '00:00';
+    gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
+  };
+
+  const handleJailCatInInfoUsers = (name, url) => {
+    const $labels = document.querySelectorAll('.info__users > fieldset label');
+    $labels.forEach($label => {
+      if ($label.querySelector('.user-name').textContent === name) {
+        $label.querySelector('img').src = url;
+        $label.querySelector('input').disabled = true;
+      }
+    });
+  };
+
+  return {
+    renderUsers,
+    renderSelectionBtn,
+    toggleVoteDisable,
+    startTimer,
+    handleAvailableCandidatesBy,
+    handleVoteAndChatActive,
+    renderInfoSection,
+    sendVoteResult,
+    toggleAllVotesAcitve,
+    handleJailCatInInfoUsers,
+  };
+})();
+
+// ----------------- socket ----------------------- //
 socket.on('chat message', ([curUser, img, , msg, id]) => {
   const $li = document.createElement('li');
   $li.className = `full-chat__item ${id === socket.id ? 'myMessage' : 'otherMessage'}`;
@@ -159,28 +293,6 @@ socket.on('chat message', ([curUser, img, , msg, id]) => {
   document.querySelector('.full-chat__container').scrollTop = $chatList.scrollHeight;
 });
 
-// ---------------------- pending ---------------------------
-// vote 버튼 비활성화, 싱태만 받아서 랜더링 진행
-// [{name : "네로", img_url: "/src/img-1.png" }]
-
-const renderUsers = () => {
-  const $filedset = document.querySelector('.info__users > fieldset');
-  $filedset.innerHTML = `
-  <legend>인원 ${gameInfo.totalUsers.length} / ${MAX_USER_NUM}</legend>
-  ${gameInfo.totalUsers
-    .map(
-      ([name, url], i) =>
-        `<label>
-            <input type="radio" id="user${i + 1}" name="user" disabled />
-            <img src="${url}" alt="플레이어 캐릭터" />
-            <span class="user-name">${name}</span>
-        </label>
-        `
-    )
-    .join('')}
-    <div class="deactive__users hidden" aria-hidden="true"></div>`;
-};
-
 socket.on('user update', ([name, url]) => {
   player.name = name;
   document.querySelector('.info__profile-name').textContent = name;
@@ -189,12 +301,12 @@ socket.on('user update', ([name, url]) => {
 
 socket.on('currentUsers', civiluser => {
   gameInfo.totalUsers = civiluser;
-  renderUsers();
+  closer.renderUsers();
 });
 
 socket.on('user disconnect', user => {
   gameInfo.totalUsers = user;
-  renderUsers();
+  closer.renderUsers();
 });
 
 socket.on('get secret-code', (secretCode, bool) => {
@@ -207,139 +319,7 @@ socket.on('get mafia-code', (_, bool) => {
   player.isCitizen = bool;
 });
 
-// 게임 스테이지 변경 이벤트
-
-// ---------------------- current-status에 따라 UI 변경 ---------------------------
-// info 섹션 배경 색상 변경(changeInfoColorMode)
-// info 이미지 변경(changeInfoImage)
-// game-status 변경
-// pending/beginning -> '곧 게임이 시작됩니다.'
-// day -> '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
-// night/citizen -> '시민은 밤에 활동할 수 없습니다.'
-// night/mafia -> '감옥에 가둘 고양이를 선택하세요.'
-
-// view ------------------------
-const changeInfoColorMode = status => {
-  const $infoContainer = document.querySelector('.info__container');
-  $infoContainer.classList.replace($infoContainer.classList[1], status);
-};
-
-const changeInfoImage = status => {
-  document.querySelectorAll('.info__header > img').forEach($img => {
-    $img.classList.contains('info__img-' + status) ? $img.removeAttribute('hidden') : $img.setAttribute('hidden', '');
-  });
-};
-
-const changeInfoGameStatus = status => {
-  const $infoGameStatus = document.querySelector('.info__game-status');
-  $infoGameStatus.innerHTML =
-    status === GAMESTAGE.PENDING || status === GAMESTAGE.BEGINNING
-      ? '곧 게임이 시작됩니다.'
-      : status === GAMESTAGE.DAY
-      ? '토론을 통해 감옥에 가둘 고양이를 선택하세요!'
-      : player.isCitizen
-      ? '시민은 밤에 활동할 수 없습니다.'
-      : '감옥에 가둘 고양이를 선택하세요.';
-};
-
-// 선택 완료 버튼 상황에 따라서
-const renderSelectionBtn = visible => {
-  if (gameInfo.state === GAMESTAGE.BEGINNING || gameInfo.state === GAMESTAGE.PENDING) return;
-  if (gameInfo.state === GAMESTAGE.NIGHT && player.isCitizen) return;
-  document.querySelector('.info__users > button').classList.toggle('hidden', !visible);
-};
-
-const removeInputChecked = () => {
-  const $labels = document.querySelectorAll('.info__users > fieldset label');
-  $labels.forEach($label => {
-    $label.querySelector('input').checked = false;
-  });
-};
-
-const renderInfoSection = state => {
-  changeInfoColorMode(state);
-  changeInfoImage(state);
-  changeInfoGameStatus(state);
-  removeInputChecked();
-};
-
-document.querySelector('.info__users').onclick = e => {
-  if (!e.target.closest('label') || e.target.closest('label').querySelector('input').disabled) return;
-  renderSelectionBtn(true);
-};
-
-// 투표 ------------------------
-
-const toggleVoteDisable = isDisable => {
-  [...document.querySelectorAll('.info__users > fieldset > label')]
-    .map(child => child.children)
-    .map(el => {
-      el[0].disabled = gameInfo.jailUsers.includes(el[2].textContent) || isDisable;
-      return el[0];
-    });
-  document.querySelector('.info__users > button').disabled = isDisable;
-};
-
-const handleAvailableCandidatesBy = status => {
-  toggleVoteDisable(status === GAMESTAGE.PENDING ? true : status === GAMESTAGE.DAY ? false : player.isCitizen);
-};
-
-const sendVoteResult = () => {
-  if (document.querySelector('.info__users > button').disabled === true) return;
-
-  const checked = [...document.querySelectorAll('.info__users > fieldset > label')].filter(
-    child => child.children[0].checked
-  );
-
-  if (checked.length <= 0) {
-    gameInfo.state === GAMESTAGE.DAY ? socket.emit('day vote', null) : socket.emit('night vote', null);
-  } else {
-    const selected = checked[0].children[2].textContent;
-    gameInfo.state === GAMESTAGE.DAY ? socket.emit('day vote', selected) : socket.emit('night vote', selected);
-  }
-};
-
-const toggleAllVotesAcitve = isActive => {
-  if (gameInfo.state === GAMESTAGE.PENDING || gameInfo.state === GAMESTAGE.BEGINNING) return;
-  document.querySelector('.deactive__users').classList.toggle('hidden', isActive);
-};
-
-const handleVoteAndChatActive = isActive => {
-  toggleAllVotesAcitve(isActive);
-  document.querySelector('.chat-form input').disabled = !isActive;
-  document.querySelector('.chat-form input').placeholder = isActive
-    ? '채팅을 입력하세요.'
-    : '채팅을 입력할 수 없습니다.';
-};
-
-window.addEventListener('DOMContentLoaded', () => {
-  toggleVoteDisable(true);
-});
-
-//  시간 ------------------------
-
-const setTime = status => {
-  const miliseconds = STAGETIME[status] - gameInfo.lap * 1000;
-  const minutes = Math.floor(miliseconds / 1000 / 60);
-  const seconds = Math.ceil((miliseconds / 1000) % 60);
-  gameInfo.lap += 1;
-
-  document.querySelector('.timer').textContent = `
-    ${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-
-  if (miliseconds <= 0) clearInterval(gameInfo.interval);
-  if (miliseconds <= 0 && (gameInfo.state === GAMESTAGE.DAY || gameInfo.state === GAMESTAGE.NIGHT)) sendVoteResult();
-};
-
-const startTimer = status => {
-  clearInterval(gameInfo.interval);
-  document.querySelector('.timer').textContent = '00:00';
-  gameInfo.interval = setInterval(setTime, 1000, status, gameInfo.lap);
-};
-
 socket.on('change gameState', (status, civilUser, mafiaUser) => {
-  // if (gameInfo.state === status) return;
-
   if (document.querySelector('.music-button').alt === '음악 듣기') {
     sound.pause();
     sound.play(status);
@@ -348,7 +328,6 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   gameInfo.state = status;
   gameInfo.lap = 0;
 
-  // 현재 시민 수 구하기
   if (status === GAMESTAGE.BEGINNING) {
     gameInfo.civilUserNum = civilUser;
     gameInfo.mafiaNum = mafiaUser;
@@ -357,17 +336,17 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   document.querySelector('.info__users > fieldset > legend').textContent = `
   시민 ${gameInfo.civilUserNum - gameInfo.jailUsers.length} / 마피아 ${gameInfo.mafiaNum}`;
 
-  startTimer(gameInfo.state);
-  handleAvailableCandidatesBy(gameInfo.state);
+  closer.startTimer(gameInfo.state);
+  closer.handleAvailableCandidatesBy(gameInfo.state);
 
   if (gameInfo.state === GAMESTAGE.DAY) {
-    handleVoteAndChatActive(player.isAlive);
+    closer.handleVoteAndChatActive(player.isAlive);
   }
   if (gameInfo.state === GAMESTAGE.NIGHT) {
-    player.isCitizen ? handleVoteAndChatActive(false) : toggleAllVotesAcitve(true);
+    player.isCitizen ? closer.handleVoteAndChatActive(false) : closer.toggleAllVotesAcitve(true);
   }
 
-  renderInfoSection(gameInfo.state);
+  closer.renderInfoSection(gameInfo.state);
 });
 
 socket.on('fullRoom', () => {
@@ -375,47 +354,10 @@ socket.on('fullRoom', () => {
   socket.emit('force disconnected');
 });
 
-// 투표 기능
-document.querySelector('.info__users > button').onclick = e => {
-  e.preventDefault();
-
-  sound.play('voteFin');
-
-  sendVoteResult();
-  toggleAllVotesAcitve(false);
-  renderSelectionBtn(false);
-};
-
-// ------------------- 소리 영역 ----------------------- //
-
-// 투표할 때 유저 프로필 클릭한 경우
-document.querySelector('.info__users > fieldset').onclick = e => {
-  if (
-    !e.target.closest('label') ||
-    e.target.closest('label').querySelector('input').disabled ||
-    gameInfo.state === GAMESTAGE.PENDING ||
-    gameInfo.state === GAMESTAGE.BEGINNING
-  )
-    return;
-  sound.play('voteUser');
-};
-
-// ------------------- 감옥 고양이 UI + 비활성화 ----------------------- //
-
-const handleJailCatInInfoUsers = (name, url) => {
-  const $labels = document.querySelectorAll('.info__users > fieldset label');
-  $labels.forEach($label => {
-    if ($label.querySelector('.user-name').textContent === name) {
-      $label.querySelector('img').src = url;
-      $label.querySelector('input').disabled = true;
-    }
-  });
-};
-
 socket.on('vote result', ([name, url]) => {
   if (name === null) return;
 
-  handleJailCatInInfoUsers(name, url);
+  closer.handleJailCatInInfoUsers(name, url);
   gameInfo.jailUsers = [...gameInfo.jailUsers, name];
 
   if (player.name !== name) return;
@@ -435,6 +377,47 @@ socket.on('game result', (result, mafiaName) => {
   document.querySelector('.modal').classList.remove('hidden');
   socket.emit('force disconnected');
 });
+
+// ----------------- DOM ----------------------- //
+window.addEventListener('DOMContentLoaded', () => {
+  closer.toggleVoteDisable(true);
+});
+
+document.querySelector('.chat-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const $input = document.querySelector('.chat-form input');
+  $input.value = $input.value.trim();
+  if ($input.value) {
+    socket.emit('chat message', $input.value);
+    $input.value = '';
+  }
+});
+
+document.querySelector('.info__users').onclick = e => {
+  if (!e.target.closest('label') || e.target.closest('label').querySelector('input').disabled) return;
+  closer.renderSelectionBtn(true);
+};
+
+document.querySelector('.info__users > button').onclick = e => {
+  e.preventDefault();
+
+  sound.play('voteFin');
+
+  closer.sendVoteResult();
+  closer.toggleAllVotesAcitve(false);
+  closer.renderSelectionBtn(false);
+};
+
+document.querySelector('.info__users > fieldset').onclick = e => {
+  if (
+    !e.target.closest('label') ||
+    e.target.closest('label').querySelector('input').disabled ||
+    gameInfo.state === GAMESTAGE.PENDING ||
+    gameInfo.state === GAMESTAGE.BEGINNING
+  )
+    return;
+  sound.play('voteUser');
+};
 
 document.querySelector('.modal-retry').onclick = () => {
   window.location.reload();
