@@ -5,8 +5,6 @@ const server = require('http').createServer(app);
 const { Server } = require('socket.io');
 const secretCodeObject = require('./db/secretCode.json');
 
-let voteStatus = [];
-
 /**
  * Create socket io and setting cors for accessing from different url
  */
@@ -37,6 +35,9 @@ const GAMESTAGE = {
 const GAMESTATUS = {
   CIVILWIN: 0,
   MAFIAWIN: 1,
+  MAFIANUM: 1,
+  CITIZEN: true,
+  MAFIA: false,
 };
 
 /**
@@ -44,10 +45,9 @@ const GAMESTATUS = {
  * @type {number}
  */
 const CATSNUMBER = 5;
-const MAFIANUM = 1;
 
 /**
- * Get random number in the range of 0 ~ number-1
+ * Get random number in the range of 0 ~ number-1 (Helper function)
  * @param {number}
  * @returns {number}
  */
@@ -90,10 +90,10 @@ const catsData = (() => {
 
 /**
  * Closure for paticipating user
- * @returns {functions};
+ * @returns {functions}
  */
 const user = (() => {
-  /** @type {Array[[nickName: string, url: string, sockeId: string]]} */
+  /** @type {Array[[nickName: string, url: string, url: string, sockeId: string]]} */
   let users = [];
 
   return {
@@ -127,6 +127,7 @@ const gameInfo = (() => {
   let citizens = [];
   let mafia = [];
   let jailCat = [];
+  let voteStatus = [];
   let secretCode = '';
 
   return {
@@ -138,6 +139,9 @@ const gameInfo = (() => {
     },
     getJailCat() {
       return jailCat;
+    },
+    getVoteStatus() {
+      return voteStatus;
     },
     getSecretCode() {
       return secretCode;
@@ -152,6 +156,9 @@ const gameInfo = (() => {
     setJailCat(newJailCat) {
       jailCat = [...jailCat, newJailCat];
     },
+    setVoteStatus(newVoteStatus) {
+      voteStatus = newVoteStatus;
+    },
     setSecretCode(len) {
       secretCode = secretCodeObject.word[getRandomNumber(len)];
     },
@@ -163,6 +170,9 @@ const gameInfo = (() => {
   };
 })();
 
+/**
+ * Reset all game data
+ */
 const gameReset = () => {
   catsData.initializeCatsCh();
   user.initializeUser();
@@ -177,47 +187,48 @@ io.on('connection', socket => {
     io.to(socket.id).emit('fullRoom');
   }
 
+  // TODO: user 클로저를 없애고 gameInfo에 totalUser로 관리하는게 더 나을듯
   const catInfo = user.add(socket.id);
 
-  if (user.getCurrentUser().length === 5) {
-    gameInfo.setCitizens(user.getCurrentUser());
-    gameInfo.setMafia(getRandomNumber(CATSNUMBER));
-    gameInfo.setSecretCode(secretCodeObject.word.length);
-
-    io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, MAFIANUM);
-
-    setTimeout(() => {
-      gameInfo.getCitizens().forEach(civil => {
-        io.to(civil[3]).emit('get secret-code', gameInfo.getSecretCode(), true);
-      });
-
-      io.to(gameInfo.getMafia()[3]).emit('get mafia-code', '', false);
-      io.emit('change gameState', GAMESTAGE.DAY);
-    }, 6000);
-  }
-
   io.to(socket.id).emit('user update', catInfo);
+  io.emit('currentUsers', user.getCurrentUser());
 
   // chat message이벤트가 발생한 경우
   socket.on('chat message', msg => {
     io.emit('chat message', [...catInfo, msg, socket.id]);
   });
 
-  io.emit('currentUsers', user.getCurrentUser());
+  if (user.getCurrentUser().length === 5) {
+    // setCitizens, setMafia, setSecretCode를 gameSet으로 한번에 묶을 수 있음 (totalUser가 존재한다면)
+    gameInfo.setCitizens(user.getCurrentUser());
+    gameInfo.setMafia(getRandomNumber(CATSNUMBER));
+    gameInfo.setSecretCode(secretCodeObject.word.length);
+
+    io.emit('change gameState', GAMESTAGE.BEGINNING, gameInfo.getCitizens().length, GAMESTATUS.MAFIANUM);
+
+    setTimeout(() => {
+      gameInfo.getCitizens().forEach(civil => {
+        io.to(civil[3]).emit('get secret-code', gameInfo.getSecretCode(), GAMESTATUS.CITIZEN);
+      });
+
+      io.to(gameInfo.getMafia()[3]).emit('get mafia-code', '', GAMESTATUS.MAFIA);
+      io.emit('change gameState', GAMESTAGE.DAY);
+    }, 6000);
+  }
 
   const getMaxNum = nums => nums.reduce((acc, curr) => Math.max(acc, curr), nums[0]);
 
   socket.on('day vote', selected => {
-    voteStatus = [...voteStatus, selected];
+    gameInfo.setVoteStatus([...gameInfo.getVoteStatus(), selected]);
 
-    if (voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length) {
+    if (gameInfo.getVoteStatus().length === user.getCurrentUser().length - gameInfo.getJailCat().length) {
       const voteCounts = new Map();
 
-      voteStatus.forEach(result => voteCounts.set(result, voteCounts.get(result) + 1 || 1));
+      gameInfo.getVoteStatus().forEach(result => voteCounts.set(result, voteCounts.get(result) + 1 || 1));
 
       const maxVote = getMaxNum([...voteCounts.values()]);
 
-      const isDraw = voteStatus.every(vote => !vote)
+      const isDraw = gameInfo.getVoteStatus().every(vote => !vote)
         ? true
         : [...voteCounts.values()].filter(voteCount => voteCount === maxVote).length > 1;
 
@@ -244,7 +255,7 @@ io.on('connection', socket => {
         io.emit('change gameState', 'night');
       }
 
-      voteStatus = [];
+      gameInfo.setVoteStatus([]);
     }
   });
 
