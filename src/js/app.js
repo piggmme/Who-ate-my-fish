@@ -54,15 +54,6 @@ socket.on('chat message', ([curUser, img, msg, id]) => {
   $chatContainer.scrollTop = $chatList.scrollHeight;
 });
 
-// http통신 예제
-// const fetchTodo = async () => {
-//   const ho = await axios.get('http://localhost:3000');
-//   console.log(ho);
-// };
-
-// fetchTodo();
-// axios.get('http://localhost:3000').then(resolve => console.log(resolve));
-
 // 단위 (ms)
 const STAGETIME = {
   pending: 0,
@@ -399,8 +390,6 @@ document.querySelector('.modal-close').onclick = () => {
 };
 
 document.querySelector('.modal-retry').onclick = () => {
-  // socket.emit('disconnect');
-  // console.log('hi');
   window.location.reload();
 };
 
