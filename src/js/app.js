@@ -204,12 +204,17 @@ const toggleVoteDisable = isDisable => {
   document.querySelector('.info__users > button').disabled = isDisable;
 };
 
-const disabledVoteNChat = isActive => {
+const toggleChatActive = isActive => {
   if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
 
   document.querySelector('.deactive__chat-list').classList.toggle('hidden', isActive);
-  document.querySelector('.deactive__users').classList.toggle('hidden', isActive);
   document.querySelector('.deactive__char-form').classList.toggle('hidden', isActive);
+};
+
+const toggledVoteActive = isActive => {
+  if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
+
+  document.querySelector('.deactive__users').classList.toggle('hidden', isActive);
 };
 
 const toggleVoteBtn = status => {
@@ -287,7 +292,14 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 
   startTimer(gameInfo.state);
   toggleVoteBtn(gameInfo.state);
-  disabledVoteNChat(true);
+
+  if (gameInfo.state === 'day') {
+    player.isAlive ? toggleChatActive(true) : toggleChatActive(false);
+    player.isAlive ? toggledVoteActive(true) : toggleChatActive(false);
+  } else if (gameInfo.state === 'night') {
+    player.isAlive ? (player.isCitizen ? toggleChatActive(false) : toggleChatActive(true)) : toggleChatActive(false);
+    player.isCitizen ? toggledVoteActive(false) : toggledVoteActive(true);
+  }
 
   // 인포 배경색 변경
   changeInfoColorMode(gameInfo.state);
@@ -327,7 +339,9 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sendVoteResult();
   toggleVoteDisable(true);
-  disabledVoteNChat(false);
+
+  // 투표 기능 비활성화
+  toggledVoteActive(false);
 
   gameInfo.isSelectBtn = true;
   controlButtonVisibility(true);
