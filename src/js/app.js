@@ -204,12 +204,12 @@ const toggleVoteDisable = isDisable => {
   document.querySelector('.info__users > button').disabled = isDisable;
 };
 
-const toggleChatActive = isActive => {
-  if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
+// const toggleChatActive = isActive => {
+//   if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
 
-  document.querySelector('.deactive__chat-list').classList.toggle('hidden', isActive);
-  document.querySelector('.deactive__char-form').classList.toggle('hidden', isActive);
-};
+//   document.querySelector('.deactive__chat-list').classList.toggle('hidden', isActive);
+//   document.querySelector('.deactive__char-form').classList.toggle('hidden', isActive);
+// };
 
 const toggledVoteActive = isActive => {
   if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
@@ -294,10 +294,8 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   toggleVoteBtn(gameInfo.state);
 
   if (gameInfo.state === 'day') {
-    player.isAlive ? toggleChatActive(true) : toggleChatActive(false);
-    player.isAlive ? toggledVoteActive(true) : toggleChatActive(false);
+    if (player.isAlive) toggledVoteActive(true);
   } else if (gameInfo.state === 'night') {
-    player.isAlive ? (player.isCitizen ? toggleChatActive(false) : toggleChatActive(true)) : toggleChatActive(false);
     player.isCitizen ? toggledVoteActive(false) : toggledVoteActive(true);
   }
 
