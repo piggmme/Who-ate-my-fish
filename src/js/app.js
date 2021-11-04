@@ -183,7 +183,7 @@ const controlButtonVisibility = toVisible => {
 };
 
 document.querySelector('.info__users').onclick = e => {
-  if (!e.target.matches('img')) return;
+  if (!e.target.closest('label')) return;
 
   if (!gameInfo.isSelectBtn) {
     controlButtonVisibility(false);
@@ -427,11 +427,11 @@ socket.on('game result', (result, mafiaName) => {
   socket.emit('force disconnected');
 });
 
-document.querySelector('.modal-close').onclick = () => {
-  document.querySelector('.modal').classList.add('hidden');
-  socket.emit('force disconnected');
-  alert('소켓 연결이 종료됩니다.');
-};
+// document.querySelector('.modal-close').onclick = () => {
+//   document.querySelector('.modal').classList.add('hidden');
+//   socket.emit('force disconnected');
+//   alert('소켓 연결이 종료됩니다.');
+// };
 
 document.querySelector('.modal-retry').onclick = () => {
   window.location.reload();
