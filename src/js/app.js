@@ -57,8 +57,8 @@ socket.on('chat message', ([curUser, img, , msg, id]) => {
 // 단위 (ms)
 const STAGETIME = {
   pending: 0,
-  beginning: 3000,
-  day: 100000,
+  beginning: 5000,
+  day: 180000,
   night: 60000,
 };
 
