@@ -294,10 +294,21 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   toggleVoteBtn(gameInfo.state);
 
   if (gameInfo.state === 'day') {
-    if (player.isAlive) toggledVoteActive(true);
+    if (player.isAlive) {
+      toggledVoteActive(true);
+      document.querySelector('.chat-form input').disabled = false;
+      document.querySelector('.chat-form input').placeholder = '채팅을 입력하세요.';
+    }
   } else if (gameInfo.state === 'night') {
-    player.isCitizen ? toggledVoteActive(false) : toggledVoteActive(true);
-    document.querySelector('.chat-form input').placeholder = '채팅을 입력할 수 없습니다.';
+    // player.isCitizen ? toggledVoteActive(false) : toggledVoteActive(true);
+    // document.querySelector('.chat-form input').placeholder = '채팅을 입력할 수 없습니다.';
+    if (player.isCitizen) {
+      toggledVoteActive(false);
+      document.querySelector('.chat-form input').placeholder = '채팅을 입력할 수 없습니다.';
+      document.querySelector('.chat-form input').disabled = true;
+    } else {
+      toggledVoteActive(true);
+    }
   }
 
   // 인포 배경색 변경
