@@ -389,6 +389,7 @@ socket.on('game result', (result, mafiaName) => {
   document.querySelector('.modal-img').src =
     GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
   document.querySelector('.modal').classList.remove('hidden');
+  socket.emit('force disconnected');
 });
 
 document.querySelector('.modal-close').onclick = () => {
@@ -399,7 +400,7 @@ document.querySelector('.modal-close').onclick = () => {
 
 document.querySelector('.modal-retry').onclick = () => {
   // socket.emit('disconnect');
-  console.log('hi');
+  // console.log('hi');
   window.location.reload();
 };
 

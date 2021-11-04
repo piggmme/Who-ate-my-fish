@@ -162,6 +162,7 @@ const gameInfo = (() => {
 })();
 
 const gameReset = () => {
+  console.log('gamerest');
   catsData.initializeCatsCh();
   user.initializeUser();
   gameInfo.initializegameInfo();
@@ -199,16 +200,6 @@ io.on('connection', socket => {
   // chat message이벤트가 발생한 경우
   socket.on('chat message', msg => {
     io.emit('chat message', [...catInfo, msg, socket.id]);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-    user.delete(socket.id, catInfo[0]);
-    io.emit('user disconnect', user.getCurrentUser());
-  });
-
-  socket.on('force disconnected', () => {
-    socket.disconnect(true);
   });
 
   io.emit('currentUsers', user.getCurrentUser());
@@ -266,6 +257,16 @@ io.on('connection', socket => {
       io.emit('vote result', [selected, catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0][2]]);
       io.emit('change gameState', 'day');
     }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+    user.delete(socket.id, catInfo[0]);
+    io.emit('user disconnect', user.getCurrentUser());
+  });
+
+  socket.on('force disconnected', () => {
+    socket.disconnect(true);
   });
 });
 
