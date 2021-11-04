@@ -209,17 +209,18 @@ io.on('connection', socket => {
   socket.on('day vote', selected => {
     voteStatus = [...voteStatus, selected];
 
-    if (
-      voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length &&
-      voteStatus.some(result => result)
-    ) {
+    console.log('투표!', voteStatus, voteStatus.length, user.getCurrentUser().length - gameInfo.getJailCat().length);
+
+    if (voteStatus.length === user.getCurrentUser().length - gameInfo.getJailCat().length) {
       const voteCounts = new Map();
 
       voteStatus.forEach(result => voteCounts.set(result, voteCounts.get(result) + 1 || 1));
 
       const maxVote = getMaxNum([...voteCounts.values()]);
 
-      const isDraw = [...voteCounts.values()].filter(voteCount => voteCount === maxVote).length > 1;
+      const isDraw = voteStatus.every(vote => !vote)
+        ? true
+        : [...voteCounts.values()].filter(voteCount => voteCount === maxVote).length > 1;
 
       const mostVoted = isDraw ? null : [...voteCounts.keys()].filter(name => voteCounts.get(name) === maxVote)[0];
 
@@ -228,24 +229,42 @@ io.on('connection', socket => {
         isDraw ? null : catsData.getCatsInfo().filter(catInfo => catInfo[0] === mostVoted)[0][2],
       ];
 
-      if (isDraw) {
-        io.emit('change gameState', 'night');
-      } else if (mostVoted === gameInfo.getMafia()[0]) {
+      console.log(isDraw);
+
+      if (!isDraw && mostVoted === gameInfo.getMafia()[0]) {
         io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
         gameReset();
-      } else {
+      } else if (!isDraw) {
         io.emit('vote result', voteResult);
         gameInfo.setJailCat(mostVoted);
         if (gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3) {
           io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0]);
           gameReset();
-        } else {
-          io.emit('change gameState', 'night');
         }
-        // gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
-        //   ?
-        //   : io.emit('change gameState', 'night');
+      } else {
+        io.emit('change gameState', 'night');
+        console.log('동점이라궁');
       }
+
+      // if (isDraw) {
+      //   io.emit('change gameState', 'night');
+      // } else if (mostVoted === gameInfo.getMafia()[0]) {
+      //   io.emit('game result', GAMESTATUS.CIVILWIN, gameInfo.getMafia()[0]);
+      //   gameReset();
+      // } else {
+      //   io.emit('vote result', voteResult);
+      //   gameInfo.setJailCat(mostVoted);
+      //   if (gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3) {
+      //     io.emit('game result', GAMESTATUS.MAFIAWIN, gameInfo.getMafia()[0]);
+      //     gameReset();
+      //   } else {
+      //     io.emit('change gameState', 'night');
+      //   }
+
+      // gameInfo.getCitizens().length - gameInfo.getJailCat().length < 3
+      //   ?
+      //   : io.emit('change gameState', 'night');
+      // }
 
       voteStatus = [];
     }
@@ -255,8 +274,8 @@ io.on('connection', socket => {
     if (selected) {
       gameInfo.setJailCat(selected);
       io.emit('vote result', [selected, catsData.getCatsInfo().filter(catInfo => catInfo[0] === selected)[0][2]]);
-      io.emit('change gameState', 'day');
     }
+    io.emit('change gameState', 'day');
   });
 
   socket.on('disconnect', () => {
