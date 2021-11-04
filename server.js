@@ -73,7 +73,6 @@ const catsData = (() => {
       while (ch[idx] !== 0) {
         idx = getRandomNumber(CATSNUMBER);
       }
-      // console.log(ch);
       ch[idx] = 1;
       return catsInfo[idx];
     },

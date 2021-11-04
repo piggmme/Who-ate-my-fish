@@ -54,15 +54,6 @@ socket.on('chat message', ([curUser, img, , msg, id]) => {
   $chatContainer.scrollTop = $chatList.scrollHeight;
 });
 
-// http통신 예제
-// const fetchTodo = async () => {
-//   const ho = await axios.get('http://localhost:3000');
-//   console.log(ho);
-// };
-
-// fetchTodo();
-// axios.get('http://localhost:3000').then(resolve => console.log(resolve));
-
 // 단위 (ms)
 const STAGETIME = {
   pending: 0,
@@ -213,12 +204,12 @@ const toggleVoteDisable = isDisable => {
   document.querySelector('.info__users > button').disabled = isDisable;
 };
 
-const toggleChatActive = isActive => {
-  if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
+// const toggleChatActive = isActive => {
+//   if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
 
-  document.querySelector('.deactive__chat-list').classList.toggle('hidden', isActive);
-  document.querySelector('.deactive__char-form').classList.toggle('hidden', isActive);
-};
+//   document.querySelector('.deactive__chat-list').classList.toggle('hidden', isActive);
+//   document.querySelector('.deactive__char-form').classList.toggle('hidden', isActive);
+// };
 
 const toggledVoteActive = isActive => {
   if (gameInfo.state === 'pending' || gameInfo.state === 'beginning') return;
@@ -303,11 +294,8 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   toggleVoteBtn(gameInfo.state);
 
   if (gameInfo.state === 'day') {
-    player.isAlive ? toggleChatActive(true) : toggleChatActive(false);
-    player.isAlive ? toggledVoteActive(true) : toggleChatActive(false);
-    document.querySelector('.chat-form input').placeholder = '채팅을 입력하세요.';
+    if (player.isAlive) toggledVoteActive(true);
   } else if (gameInfo.state === 'night') {
-    player.isAlive ? (player.isCitizen ? toggleChatActive(false) : toggleChatActive(true)) : toggleChatActive(false);
     player.isCitizen ? toggledVoteActive(false) : toggledVoteActive(true);
     document.querySelector('.chat-form input').placeholder = '채팅을 입력할 수 없습니다.';
   }
@@ -435,8 +423,6 @@ document.querySelector('.modal-close').onclick = () => {
 };
 
 document.querySelector('.modal-retry').onclick = () => {
-  // socket.emit('disconnect');
-  // console.log('hi');
   window.location.reload();
 };
 
