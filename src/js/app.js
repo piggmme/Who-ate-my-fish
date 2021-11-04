@@ -388,7 +388,9 @@ document.querySelector('.modal-close').onclick = () => {
 };
 
 document.querySelector('.modal-retry').onclick = () => {
-  window.location.href = '/';
+  // socket.emit('disconnect');
+  console.log('hi');
+  window.location.reload();
 };
 
 document.querySelector('.music-button').onclick = e => {
