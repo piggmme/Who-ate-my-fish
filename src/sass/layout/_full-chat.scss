@@ -23,12 +23,18 @@
 
 .full-chat {
   &__container {
+    position: relative;
     @include basicStyle;
     @include boxShadow;
     background-color: $white;
     overflow-x: hidden;
     overflow-y: scroll;
   }
+
+  &__container::-webkit-scrollbar {
+    display: none;
+  }
+
   &__item {
     width: 100%;
     position: relative;
