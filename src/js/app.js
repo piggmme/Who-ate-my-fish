@@ -102,8 +102,8 @@ const renderUsers = () => {
       (user, i) =>
         `<label>
             <input type="radio" id="user${i + 1}" name="user" disabled />
-            <img src="${user[1]}" alt="플레이어 캐릭터" />
-            <span class="user-name">${user[0]}</span>
+            <img src="${user.catImageUrl}" alt="플레이어 캐릭터" />
+            <span class="user-name">${user.nickName}</span>
         </label>
         `
     )
