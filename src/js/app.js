@@ -38,7 +38,7 @@ document.querySelector('.chat-form').addEventListener('submit', e => {
 });
 
 // chat message 이벤트를 받은 경우, li에 요소 추가
-socket.on('chat message', ([curUser, img, jailImg, msg, id]) => {
+socket.on('chat message', ([curUser, img, , msg, id]) => {
   const $li = document.createElement('li');
   $li.className = `full-chat__item ${id === socket.id ? 'me' : 'other'}`;
   $li.innerHTML = `
@@ -300,6 +300,14 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 
   // 투표시 체크된 라벨을 해제해주기
   removeInputChecked();
+
+  if (!player.isAlive) {
+    // 입력창 비활성화
+    document.querySelector('.chat-form input').disabled = true;
+
+    // 투표창 비활성화
+    document.querySelector('.deactive__users').classList.remove('hidden');
+  }
 });
 
 socket.on('fullRoom', () => {
