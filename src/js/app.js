@@ -1,8 +1,5 @@
 // import axios from 'axios';
 import io from 'socket.io-client';
-import chatInit from './chat';
-
-chatInit();
 
 const socket = io('http://localhost:3000');
 
@@ -134,6 +131,19 @@ const gameInfo = (() => {
 
 // ----------------- fucntion ----------------------- //
 const closer = (() => {
+  const chatToggleInMobile = () => {
+    const $button = document.querySelector('.chat-toggle-button');
+    $button.classList.toggle('hidden', window.innerWidth >= 768);
+
+    const $chatContainer = document.querySelector('.full-chat__container');
+    $chatContainer.classList.toggle('hidden', window.innerWidth >= 768 ? false : !$button.classList.contains('exit'));
+
+    if (window.innerWidth >= 768) {
+      document.querySelector('.info__container').classList.remove('hidden');
+      $button.classList.remove('exit');
+      $button.querySelector('img').src = './images/message.png';
+    }
+  };
   const renderUsers = () => {
     const $filedset = document.querySelector('.info__users > fieldset');
     $filedset.innerHTML = `
@@ -193,6 +203,7 @@ const closer = (() => {
     changeInfoGameStatus(state);
     removeInputChecked();
   };
+
   const toggleVoteDisable = isDisable => {
     [...document.querySelectorAll('.info__users > fieldset > label')]
       .map(child => child.children)
@@ -263,7 +274,14 @@ const closer = (() => {
     });
   };
 
+  const isLastCharacterHasFinalConsonant = korStr => {
+    const LastCharCode = korStr.charCodeAt(korStr.length - 1);
+    const CHAR_CODE_OF_KOR_GA = 44032;
+    return LastCharCode % 28 !== CHAR_CODE_OF_KOR_GA % 28;
+  };
+
   return {
+    chatToggleInMobile,
     renderUsers,
     renderSelectionBtn,
     toggleVoteDisable,
@@ -274,6 +292,7 @@ const closer = (() => {
     sendVoteResult,
     toggleAllVotesAcitve,
     handleJailCatInInfoUsers,
+    isLastCharacterHasFinalConsonant,
   };
 })();
 
@@ -367,21 +386,14 @@ socket.on('vote result', ([name, url]) => {
   document.querySelector('.info__profile-img').setAttribute('src', url);
 });
 
-// 한글 문자열이 받침 있는 글자로 끝나면 true, 아니면 false
-const isLastCharacterHasFinalConsonant = korStr => {
-  const LastCharCode = korStr.charCodeAt(korStr.length - 1);
-  const CHAR_CODE_OF_KOR_GA = 44032;
-  return LastCharCode % 28 !== CHAR_CODE_OF_KOR_GA % 28;
-};
-
 socket.on('game result', (result, mafiaName) => {
   document.querySelector('.modal-title').innerHTML =
     GAMESTATUS.CIVILWIN === result
       ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName}${
-          isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
+          closer.isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
         }습니다.`
       : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName}${
-          isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
+          closer.isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
         }습니다.`;
   document.querySelector('.modal-img').src =
     GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
@@ -393,6 +405,20 @@ socket.on('game result', (result, mafiaName) => {
 window.addEventListener('DOMContentLoaded', () => {
   closer.toggleVoteDisable(true);
 });
+
+window.addEventListener('DOMContentLoaded', closer.chatToggleInMobile);
+
+window.onresize = closer.chatToggleInMobile;
+
+document.querySelector('.chat-toggle-button').onclick = e => {
+  document.querySelector('.full-chat__container').classList.toggle('hidden');
+  document.querySelector('.info__container').classList.toggle('hidden');
+  e.target.closest('button').classList.toggle('exit');
+
+  e.target.closest('img').src = document.querySelector('.chat-toggle-button').classList.contains('exit')
+    ? './images/message_exit.png'
+    : './images/message.png';
+};
 
 document.querySelector('.chat-form').addEventListener('submit', e => {
   e.preventDefault();
