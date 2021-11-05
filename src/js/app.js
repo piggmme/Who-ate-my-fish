@@ -131,7 +131,7 @@ const gameInfo = (() => {
 })();
 
 // ----------------- fucntion ----------------------- //
-const closer = (() => {
+const gameFunctions = (() => {
   const chatToggleInMobile = () => {
     const $button = document.querySelector('.chat-toggle-button');
     const BREAK_POINT = 768;
@@ -327,12 +327,12 @@ socket.on('user update', ([name, url]) => {
 
 socket.on('currentUsers', civiluser => {
   gameInfo.totalUsers = civiluser;
-  closer.renderUsers();
+  gameFunctions.renderUsers();
 });
 
 socket.on('user disconnect', user => {
   gameInfo.totalUsers = user;
-  closer.renderUsers();
+  gameFunctions.renderUsers();
 });
 
 socket.on('get secret-code', (secretCode, bool) => {
@@ -362,17 +362,17 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
   document.querySelector('.info__users > fieldset > legend').textContent = `
   시민 ${gameInfo.civilUserNum - gameInfo.jailUsers.length} / 마피아 ${gameInfo.mafiaNum}`;
 
-  closer.startTimer(gameInfo.state);
-  closer.handleAvailableCandidatesBy(gameInfo.state);
+  gameFunctions.startTimer(gameInfo.state);
+  gameFunctions.handleAvailableCandidatesBy(gameInfo.state);
 
   if (gameInfo.state === GAMESTAGE.DAY) {
-    closer.handleVoteAndChatActive(player.isAlive);
+    gameFunctions.handleVoteAndChatActive(player.isAlive);
   }
   if (gameInfo.state === GAMESTAGE.NIGHT) {
-    player.isCitizen ? closer.handleVoteAndChatActive(false) : closer.toggleAllVotesAcitve(true);
+    player.isCitizen ? gameFunctions.handleVoteAndChatActive(false) : gameFunctions.toggleAllVotesAcitve(true);
   }
 
-  closer.renderInfoSection(gameInfo.state);
+  gameFunctions.renderInfoSection(gameInfo.state);
 });
 
 socket.on('fullRoom', () => {
@@ -384,7 +384,7 @@ socket.on('fullRoom', () => {
 socket.on('vote result', ([name, url]) => {
   if (name === null) return;
 
-  closer.handleJailCatInInfoUsers(name, url);
+  gameFunctions.handleJailCatInInfoUsers(name, url);
   gameInfo.jailUsers = [...gameInfo.jailUsers, name];
 
   if (player.name !== name) return;
@@ -398,10 +398,10 @@ socket.on('game result', (result, mafiaName) => {
   document.querySelector('.modal-title').innerHTML =
     GAMESTATUS.CIVILWIN === result
       ? `시민이 이겼습니다! <br> 마피아는 ${mafiaName}${
-          closer.isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
+          gameFunctions.isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
         }습니다.`
       : `마피아가 이겼습니다! <br> 마피아는 ${mafiaName}${
-          closer.isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
+          gameFunctions.isLastCharacterHasFinalConsonant(mafiaName) ? '이었' : '였'
         }습니다.`;
   document.querySelector('.modal-img').src =
     GAMESTATUS.CIVILWIN === result ? './images/cats/civilwin.png' : './images/cats/mafiawin.png';
@@ -411,12 +411,12 @@ socket.on('game result', (result, mafiaName) => {
 
 // ----------------- DOM ----------------------- //
 window.addEventListener('DOMContentLoaded', () => {
-  closer.toggleVoteDisable(true);
+  gameFunctions.toggleVoteDisable(true);
 });
 
-window.addEventListener('DOMContentLoaded', closer.chatToggleInMobile);
+window.addEventListener('DOMContentLoaded', gameFunctions.chatToggleInMobile);
 
-window.onresize = closer.chatToggleInMobile;
+window.onresize = gameFunctions.chatToggleInMobile;
 
 document.querySelector('.chat-toggle-button').onclick = e => {
   document.querySelector('.full-chat__container').classList.toggle('hidden');
@@ -440,7 +440,7 @@ document.querySelector('.chat-form').addEventListener('submit', e => {
 
 document.querySelector('.info__users').onclick = e => {
   if (!e.target.closest('label') || e.target.closest('label').querySelector('input').disabled) return;
-  closer.renderSelectionBtn(true);
+  gameFunctions.renderSelectionBtn(true);
 };
 
 document.querySelector('.info__users > button').onclick = e => {
@@ -448,9 +448,9 @@ document.querySelector('.info__users > button').onclick = e => {
 
   sound.play('voteFin');
 
-  closer.sendVoteResult();
-  closer.toggleAllVotesAcitve(false);
-  closer.renderSelectionBtn(false);
+  gameFunctions.sendVoteResult();
+  gameFunctions.toggleAllVotesAcitve(false);
+  gameFunctions.renderSelectionBtn(false);
 };
 
 document.querySelector('.info__users > fieldset').onclick = e => {
