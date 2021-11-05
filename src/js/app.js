@@ -2,6 +2,7 @@
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
+// const socket = io('http://who-ate-my-fish.herokuapp.com/');
 
 // ----------------- sound ----------------------- //
 
@@ -369,8 +370,9 @@ socket.on('change gameState', (status, civilUser, mafiaUser) => {
 });
 
 socket.on('fullRoom', () => {
-  alert('방이 다 찼습니다.');
-  socket.emit('force disconnected');
+  // alert('방이 다 찼습니다.');
+  socket.disconnect();
+  // socket.emit('force disconnected');
 });
 
 socket.on('vote result', ([name, url]) => {

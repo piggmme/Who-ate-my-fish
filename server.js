@@ -162,15 +162,24 @@ const gameReset = () => {
  * Socket connect
  */
 io.on('connection', socket => {
-  if (gameInfo.getCurrentUsers().length >= 5) {
-    // 소켓 이벤트 명 프론트랑 상의해서 맞추기 full room 이런식으로
+  // if (gameInfo.getCurrentUsers().length >= 5) {
+  //   // 소켓 이벤트 명 프론트랑 상의해서 맞추기 full room 이런식으로
+  //   io.to(socket.id).emit('fullRoom');
+  // }
+  if (gameInfo.getCurrentUsers().length === 5) {
     io.to(socket.id).emit('fullRoom');
   }
 
-  // TODO: user 클로저를 없애고 gameInfo에 totalUser로 관리하는게 더 나을듯
-  const { nickName, catImageUrl, jailCatImageUrl } = gameInfo.add(socket.id);
+  let catInfo = '';
+  if (gameInfo.getCurrentUsers().length < 5) {
+    // TODO: user 클로저를 없애고 gameInfo에 totalUser로 관리하는게 더 나을듯
+    catInfo = gameInfo.add(socket.id);
 
-  io.to(socket.id).emit('user update', [nickName, catImageUrl]);
+    const { nickName, catImageUrl } = catInfo;
+    io.to(socket.id).emit('user update', [nickName, catImageUrl]);
+  }
+
+  const { nickName, catImageUrl, jailCatImageUrl } = catInfo;
 
   // current users 이름 바꾸기
   io.emit('currentUsers', gameInfo.getCurrentUsers());
@@ -186,10 +195,6 @@ io.on('connection', socket => {
     io.emit('change gameState', GAME_STAGE.BEGINNING, gameInfo.getCitizens().length, GAME_STATUS_VALUE.MAFIA_NUM);
 
     setTimeout(() => {
-      // gameInfo.toTal().forEach(user => {
-      //   io.to(user.socketId).emit('get secret-code', civil.includes(user.socketId) ? (gameInfo.getSecretCode(), true) : ('', false);
-      // });
-
       gameInfo.getCitizens().forEach(civil => {
         io.to(civil.socketId).emit('get secret-code', gameInfo.getSecretCode(), GAME_STATUS_VALUE.CITIZEN);
       });
@@ -257,9 +262,9 @@ io.on('connection', socket => {
     io.emit('user disconnect', gameInfo.getCurrentUsers());
   });
 
-  socket.on('force disconnected', () => {
-    socket.disconnect(true);
-  });
+  // socket.on('force disconnected', () => {
+  //   socket.disconnect(true);
+  // });
 });
 
 server.listen(3000, () => {
