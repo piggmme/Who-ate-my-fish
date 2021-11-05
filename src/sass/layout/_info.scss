@@ -1,41 +1,89 @@
 @use './../utils' as *;
 @use './../components' as *;
 
+// 데스크탑
+@include respond-above(md) {
+  .info {
+    &__container {
+      width: 49%;
+      height: 80vh;
+      @include flexbox($justify-content: space-around, $direction: column);
+      overflow-y: auto;
+    }
+    &__profile {
+      img {
+        width: 80%;
+      }
+    }
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  .info {
+    &__container {
+      width: 100%;
+      height: 80vh;
+      @include flexbox($justify-content: center, $direction: column);
+    }
+    &__profile {
+      img {
+        min-width: rem(80px);
+        max-width: rem(100px);
+      }
+    }
+  }
+}
+
 .info {
   &__container {
-    @include basicStyle;
     @include boxShadow;
-    width: 49%;
-    background-color: $sky-blue;
-    height: 75vh;
-    // overflow: scroll;
+    @include basicStyle;
+
+    // height: 75vh;
+
+    background-color: $day-background-color;
+    padding: 2%;
+
+    &.pending,
+    &.beginning {
+      background-color: $initial-background-color;
+    }
+
+    &.day {
+      background-color: $day-background-color;
+    }
+
+    &.night {
+      background-color: $night-background-color;
+      color: $night-font-color;
+    }
   }
 
   &__header {
-    @include flexbox(row, nowrap);
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
+    @include flexbox($align-items: center);
+    // display: flex;
+    // justify-content: center;
+    // align-items: flex-end;
     width: 100%;
     padding: 10px;
     // margin-top: -1%;
   }
 
-  &__fish-img {
+  &__img-pending,
+  &__img-beginning {
     width: 25%;
-    height: 15%;
     max-height: 70px;
   }
-  &__day-img {
+  &__img-day {
     width: 15%;
-    height: 10%;
     max-height: 100px;
   }
-  &__night-img {
+  &__img-night {
     width: 15%;
-    height: 20%;
     max-height: 100px;
   }
+
   &__time {
     width: 50%;
 
@@ -55,7 +103,7 @@
 
     img {
       @include autoMargin();
-      width: 60%;
+      // width: 80%;
 
       display: block;
     }
@@ -66,20 +114,23 @@
   }
   &__game-status {
     display: block;
-    padding: rem(20px) 0 rem(10px);
     font-size: rem(20px);
+    text-align: center;
   }
 
   &__message {
     @include flexbox($justify-content: center);
+    gap: rem(10px);
 
     &-title {
-      display: block;
+      @include flexbox(row, center, center);
       font-size: rem(20px);
-      width: 30%;
+      width: 20%;
       padding: rem(20px);
       text-align: center;
-      line-height: rem(70px);
+      vertical-align: middle;
+      line-height: rem(35px);
+      word-break: keep-all;
     }
     &-content {
       @include boxShadow;
@@ -87,32 +138,35 @@
       align-self: center;
       background-color: $white;
       border-radius: rem(10px);
-      width: 70%;
+      width: 80%;
       height: rem(70px);
       margin: rem(20px) 0;
       font-size: rem(30px);
       text-align: center;
       line-height: rem(70px);
+      color: black;
     }
   }
 
   &__users {
     position: relative;
     padding-top: 30px;
+    // overflow-y: auto;
 
     fieldset {
+      position: relative;
       background-color: $white;
       @include basicStyle();
-
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 1fr);
+      grid-template-columns: repeat(3, auto);
+      grid-template-rows: repeat(2, auto);
       padding: 10px 10px;
+      min-height: rem(260px);
     }
 
     legend {
       position: absolute;
-      top: 0;
+      top: -30px;
       left: 10px;
     }
 
@@ -121,14 +175,30 @@
       flex-flow: column;
       justify-content: center;
       align-items: center;
-      min-height: 100px;
+      min-height: rem(120px);
+      color: $black;
     }
 
     input {
       @include a11yHidden();
     }
+
+    input:checked ~ img {
+      border: 3px solid red;
+    }
+
+    input ~ img {
+      border: 0;
+      border-radius: 50%;
+      @include boxShadow;
+    }
+
     img {
-      width: 50%;
+      // width: 50%;
+      max-width: rem(80px);
+      border: 0;
+      cursor: pointer;
+      -webkit-user-drag: none;
     }
 
     &-name {
@@ -139,10 +209,28 @@
       position: absolute;
       top: 0;
       right: 0;
+      z-index: 0;
+      visibility: visible;
+      border: 1px solid red;
+      background-color: red;
+      color: white;
+      border-radius: 5px;
+      transition: top 1s ease;
+    }
+
+    button.deactivate {
+      position: absolute;
+      top: 35px;
+      right: 0;
+      visibility: hidden;
       border: 1px solid red;
       background-color: red;
       color: white;
       border-radius: 5px;
     }
+  }
+
+  &__users::-webkit-scrollbar {
+    display: none;
   }
 }

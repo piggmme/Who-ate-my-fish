@@ -2,8 +2,41 @@
 @use './../components' as *;
 @use './full-chat' as *;
 
+.hidden {
+  display: none !important;
+}
+
+// 데스크탑
+@include respond-above(md) {
+  .main {
+    @include basicStyle(0);
+    @include boxSizeMax(1000px);
+    min-width: rem(790px);
+    width: 100%;
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  html {
+    font-size: rem(13px);
+  }
+  .main {
+    @include boxSizeMax(600px);
+    @include basicStyle(10px);
+    max-width: rem(530px);
+    box-sizing: border-box;
+    width: 100%;
+  }
+}
+
+body {
+  @include flexbox($justify-content: center, $align-items: center, $direction: column);
+}
+
 .header {
   @include flexbox($justify-content: center);
+  width: 100%;
   .fish-img {
     align-self: center;
     width: rem(70px);
@@ -12,6 +45,25 @@
     padding: 1%;
     font-size: rem(40px);
     font-family: 'Gaegu', cursive;
+    @include respond-below(md);
+    font-size: rem(35px);
+  }
+}
+
+.music-button {
+  cursor: pointer;
+  width: rem(50px);
+  height: rem(50px);
+
+  @include respond-above(md) {
+    position: absolute;
+    right: 15%;
+    top: 2%;
+    // margin-left: rem(40px);
+  }
+
+  @include respond-below(md) {
+    margin-left: rem(40px);
   }
 }
 
@@ -26,9 +78,9 @@ body {
 }
 
 .main {
-  @include boxSizeMax(1200px);
-  @include basicStyle;
   @include flexbox($justify-content: space-between, $flex-wrap: wrap);
+  position: relative;
+  line-height: 1.4;
 }
 .info {
   &__time {
@@ -42,10 +94,12 @@ body {
 }
 .info__container {
   width: 49%;
+  overflow: auto;
 }
 
 // 채팅 입력창 ---------------------------------------/
 .chat-form {
+  position: relative;
   width: 100%;
   margin-top: 2%;
   @include flexbox($justify-content: space-between);
@@ -68,5 +122,131 @@ body {
   .isActiveBtn {
     color: $white;
     background-color: $blue;
+  }
+}
+
+// 채팅 버튼 ---------------------------------------/
+.chat-toggle-button {
+  position: absolute;
+  bottom: 13%;
+  right: 3%;
+  width: 13%;
+  border: 0;
+  background-color: transparent;
+
+  img {
+    width: 100%;
+  }
+}
+
+// 모달 ---------------------------------------/
+// 데스크탑
+@include respond-above(md) {
+  .modal {
+    &-window {
+      padding: 0 rem(20px);
+      width: 40%;
+      min-width: rem(500px);
+    }
+    &-title {
+      font-size: rem(30px);
+    }
+    &-img {
+      display: block;
+      margin: rem(20px);
+    }
+    &-retry {
+      font-size: rem(20px);
+    }
+  }
+}
+
+// 모바일
+@include respond-below(md) {
+  .modal {
+    &-window {
+      width: 80%;
+      max-width: rem(400px);
+    }
+    &-img {
+      width: 30%;
+      margin: rem(10px);
+    }
+    &-title {
+      font-size: rem(20px);
+    }
+    &-retry {
+      font-size: rem(20px);
+    }
+  }
+}
+
+.modal {
+  position: absolute;
+  @include flexbox($justify-content: center, $align-items: center);
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+
+  &-window {
+    @include flexbox(row, $justify-content: space-around, $align-items: center, $flex-wrap: wrap);
+    position: relative;
+    background-color: white;
+    border-radius: rem(10px);
+  }
+
+  &-title {
+    text-align: center;
+    padding: 8%;
+    line-height: 1.2;
+    width: 100%;
+  }
+
+  &-retry {
+    display: block;
+    background-color: $blue;
+    color: $white;
+    font-weight: 400;
+    padding: rem(10px) rem(30px);
+    border-radius: 10px;
+    border-bottom-left-radius: 0;
+    border: none;
+    box-shadow: 0px rem(5px) 3px lightgray;
+  }
+}
+
+.deactive {
+  &__chat-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  &__users {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  &__char-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 89%;
+    height: 100%;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
   }
 }
