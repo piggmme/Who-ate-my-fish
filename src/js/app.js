@@ -2,6 +2,7 @@
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
+// const socket = io('http://who-ate-my-fish.herokuapp.com/');
 
 // ----------------- sound ----------------------- //
 
@@ -133,12 +134,16 @@ const gameInfo = (() => {
 const closer = (() => {
   const chatToggleInMobile = () => {
     const $button = document.querySelector('.chat-toggle-button');
-    $button.classList.toggle('hidden', window.innerWidth >= 768);
+    const BREAK_POINT = 768;
+    $button.classList.toggle('hidden', window.innerWidth >= BREAK_POINT);
 
     const $chatContainer = document.querySelector('.full-chat__container');
-    $chatContainer.classList.toggle('hidden', window.innerWidth >= 768 ? false : !$button.classList.contains('exit'));
+    $chatContainer.classList.toggle(
+      'hidden',
+      window.innerWidth >= BREAK_POINT ? false : !$button.classList.contains('exit')
+    );
 
-    if (window.innerWidth >= 768) {
+    if (window.innerWidth >= BREAK_POINT) {
       document.querySelector('.info__container').classList.remove('hidden');
       $button.classList.remove('exit');
       $button.querySelector('img').src = './images/message.png';
@@ -206,10 +211,9 @@ const closer = (() => {
 
   const toggleVoteDisable = isDisable => {
     [...document.querySelectorAll('.info__users > fieldset > label')]
-      .map(child => child.children)
-      .map(el => {
+      .map(label => label.children)
+      .forEach(el => {
         el[0].disabled = gameInfo.jailUsers.includes(el[2].textContent) || isDisable;
-        return el[0];
       });
     document.querySelector('.info__users > button').disabled = isDisable;
   };
@@ -228,8 +232,10 @@ const closer = (() => {
     if (checked.length <= 0) {
       gameInfo.state === GAMESTAGE.DAY ? socket.emit('day vote', null) : socket.emit('night vote', null);
     } else {
-      const selected = checked[0].children[2].textContent;
-      gameInfo.state === GAMESTAGE.DAY ? socket.emit('day vote', selected) : socket.emit('night vote', selected);
+      const selectedName = checked[0].children[2].textContent;
+      gameInfo.state === GAMESTAGE.DAY
+        ? socket.emit('day vote', selectedName)
+        : socket.emit('night vote', selectedName);
     }
   };
 
@@ -277,6 +283,7 @@ const closer = (() => {
   const isLastCharacterHasFinalConsonant = korStr => {
     const LastCharCode = korStr.charCodeAt(korStr.length - 1);
     const CHAR_CODE_OF_KOR_GA = 44032;
+    // 받침이 없는 글자가 28개마다 반복됨.
     return LastCharCode % 28 !== CHAR_CODE_OF_KOR_GA % 28;
   };
 
