@@ -6,7 +6,7 @@
 
 ## 프로젝트 주소
 
-[Who ate my fish?](Who-ate-my-fish.seohey.co.kr)
+[Who ate my fish?](http://who-ate-my-fish.seohey.co.kr/)
 
 ## Duration
 
