@@ -44,7 +44,8 @@
 
 ### 3. 투표 영역
 
-<img width="487" alt="스크린샷 2021-11-08 오전 9 26 01" src="https://user-images.githubusercontent.com/76723666/140667863-46890be8-da21-4eb4-8464-b8d9e11b34e7.png">
+<img width="992" alt="스크린샷 2021-11-08 오전 9 33 59" src="https://user-images.githubusercontent.com/76723666/140668150-e6344313-7f11-43df-8209-9ab0dab7fb6a.png">
+
 
 사용자의 투표 영역 및 투표 결과를 보여주는 영역입니다.
 
