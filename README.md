@@ -19,9 +19,9 @@
 
 <img width="654" alt="스크린샷 2021-11-08 오전 9 21 00" src="https://user-images.githubusercontent.com/76723666/140667691-a8932adf-e501-4d76-a197-c4e760797ad0.png">
 
-## 프로젝트 최종 영상 시연
+## 프로젝트 최종 시연 영상
 
-> 유튜브 주소 게시 예정
+[https://youtu.be/Ywctc4oXzFU](https://youtu.be/Ywctc4oXzFU)
 
 ## 프로젝트 주요 기능
 
